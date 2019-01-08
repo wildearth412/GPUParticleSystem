@@ -1,0 +1,88 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels.
+#pragma kernel CSMain
+
+#define NUM_THREAD_X 8
+#define NUM_THREAD_Y 1
+#define NUM_THREAD_Z 1
+
+#define PI 3.14159265
+
+// Struct of particle data.
+struct ParticleData
+{
+	float3 velocity;
+	float3 position;
+};
+
+// Constant value buffer.
+cbuffer CB
+{
+	float _TimeStep;
+	float3 _Gravity;
+	float3 _AreaSize;
+};
+
+// Create a readable and writable particles data buffer.
+RWStructuredBuffer<ParticleData> _ParticleBuffer;
+
+// Create a RenderTexture with enableRandomWrite flag and set it with cs.SetTexture. 
+//RWTexture2D<float4> Result;
+
+// Function that returns a random value from 0 to 1.0
+float rand(float2 v)
+{
+	return frac(sin(dot(v.xy, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+// Function that returns a random point inside a unit sphere.
+float3 randomInsideUnitSphere(float2 v)
+{
+	float phi = 2 * PI * rand(v);
+	float th = acos(1.0 - 2.0 * rand(v + float2(0.0,0.1)));
+	float r = pow(rand(v + float2(0.0, 0.2)), 0.333333333);
+
+	float x = r * sin(th) * cos(phi);
+	float y = r * sin(th) * sin(phi);
+	float z = r * cos(th);
+
+	return float3 (x,y,z);
+}
+
+// Kernel Function.
+// Set num of threads.
+[numthreads(NUM_THREAD_X, NUM_THREAD_Y, NUM_THREAD_Z)]
+void CSMain ( uint3 Gid  : SV_GroupID,
+			  uint3 GTid : SV_GroupThreadID, 
+			  uint3 DTid : SV_DispatchThreadID,
+			  uint  GI   : SV_GroupIndex )
+{
+	// The index of particles.
+	int idx = DTid.x;
+	// Read the speed of particles.
+	float3 velocity = _ParticleBuffer[idx].velocity;
+	// Read the position of particles.
+	float3 position = _ParticleBuffer[idx].position;
+
+	// Calculate the acceleration.
+	float3 acceleration = _Gravity.xyz;
+	// Calculate the speed.
+	velocity += acceleration * _TimeStep;
+	// Calculate the postion.
+	position += velocity * _TimeStep;
+
+	if (position.x < -_AreaSize.x * 0.5 || position.x > _AreaSize.x * 0.5 ||
+		position.y < -_AreaSize.y * 0.5 || position.y > _AreaSize.y * 0.5 ||
+		position.z < -_AreaSize.z * 0.5 || position.z > _AreaSize.z * 0.5)
+	{
+		// Reset speed and position.
+		float3 rnd = randomInsideUnitSphere(float2(idx, 0));
+		velocity = rnd;
+		position = rnd;
+	}
+
+	// Write speed and position into buffer.
+	_ParticleBuffer[idx].velocity = velocity;
+	_ParticleBuffer[idx].position = position;
+
+	//Result[id.xy] = float4(DTid.x & DTid.y, (DTid.x & 15)/15.0, (DTid.y & 15)/15.0, 0.0);
+}
