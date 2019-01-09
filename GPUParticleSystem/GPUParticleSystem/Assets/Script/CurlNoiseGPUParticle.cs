@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using Noise;
 
-public enum EmitterType : int
-{
-    Plane = 0,
-    Sphere = 1,
-    Box = 2,
-    Mesh = 3
-}
 
 public struct ParticleDataAlpha
 {
@@ -40,32 +34,59 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public float startMaxLifespan = 5.0f;
     public float startMinLifespan = 3.0f;
 
-    public EmitterType emitter = EmitterType.Plane;
+    public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
     public float emitterSize = 1.0f;
+
+    public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
+    public float noiseAmount = 1.0f;
 
     public Camera renderCam;
 
     private ComputeBuffer particleBuffer;
     private Material particleMat;
 
+    private CurlNoise cn = new CurlNoise();
+
+    private Vector3 GetNoise(Vector3 v)
+    {
+        int ntype = (int)noise;
+        Vector3 noiseFactor = Vector3.one;
+        switch (ntype)
+        {
+            case 0:             
+                break;
+            case 1:
+                noiseFactor = cn.GetCurlNoise(v) * noiseAmount;
+                break;
+            case 2:
+
+                break;
+            case 3:
+
+                break;
+        }
+        return noiseFactor;
+    }
 
     private void Start()
     {
         particleBuffer = new ComputeBuffer(NUM_PARTICLES, Marshal.SizeOf(typeof(ParticleDataAlpha)));
 
-        int type = (int)emitter;
+        int emtype = (int)emitter;    
         var pData = new ParticleDataAlpha[NUM_PARTICLES];
         for (int i = 0; i < pData.Length; i++)
         {
-            if (type == 0)
+            if (emtype == 0)
             {
-                pData[i].velocity = new Vector3(0, Random.value, 0);
                 pData[i].position = new Vector3((Random.value * 2.0f - 1.0f), 0, (Random.value * 2.0f - 1.0f)) * emitterSize;
+                Vector3 n = GetNoise(pData[i].position);
+                n = new Vector3(n.x,Mathf.Abs(n.y),n.z);
+                pData[i].velocity = Vector3.Scale(new Vector3(Random.value, (1.0f - Random.value * 0.5f), Random.value), n);
             }
-            else if (type == 1)
+            else if (emtype == 1)
             {
-                pData[i].velocity = Random.insideUnitSphere;
                 pData[i].position = Random.insideUnitSphere * emitterSize;
+                pData[i].velocity = Vector3.Scale(Random.insideUnitSphere, GetNoise(pData[i].position));
             }
             
             startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;

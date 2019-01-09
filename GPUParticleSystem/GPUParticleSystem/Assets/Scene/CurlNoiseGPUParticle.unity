@@ -210,6 +210,10 @@ MonoBehaviour:
   particleSize: 0.03
   startMaxLifespan: 5
   startMinLifespan: 3
+  emitter: 0
+  emitterSize: 1
+  noise: 1
+  noiseAmount: 1
   renderCam: {fileID: 1486196181}
 --- !u!4 &1019116279
 Transform:
