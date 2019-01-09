@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
 
+public enum EmitterType : int
+{
+    Plane = 0,
+    Sphere = 1,
+    Box = 2,
+    Mesh = 3
+}
+
 public struct ParticleDataAlpha
 {
     public Vector3 velocity;
@@ -32,20 +40,34 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public float startMaxLifespan = 5.0f;
     public float startMinLifespan = 3.0f;
 
+    public EmitterType emitter = EmitterType.Plane;
+    public float emitterSize = 1.0f;
+
     public Camera renderCam;
 
     private ComputeBuffer particleBuffer;
     private Material particleMat;
 
+
     private void Start()
     {
         particleBuffer = new ComputeBuffer(NUM_PARTICLES, Marshal.SizeOf(typeof(ParticleDataAlpha)));
 
+        int type = (int)emitter;
         var pData = new ParticleDataAlpha[NUM_PARTICLES];
         for (int i = 0; i < pData.Length; i++)
         {
-            pData[i].velocity = Random.insideUnitSphere;
-            pData[i].position = Random.insideUnitSphere;
+            if (type == 0)
+            {
+                pData[i].velocity = new Vector3(0, Random.value, 0);
+                pData[i].position = new Vector3((Random.value * 2.0f - 1.0f), 0, (Random.value * 2.0f - 1.0f)) * emitterSize;
+            }
+            else if (type == 1)
+            {
+                pData[i].velocity = Random.insideUnitSphere;
+                pData[i].position = Random.insideUnitSphere * emitterSize;
+            }
+            
             startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;
             startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;           
             pData[i].lifespan = startMinLifespan + Random.value * (startMaxLifespan - startMinLifespan);
@@ -74,6 +96,9 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         int kernelID = cs.FindKernel("CSMain");
 
         // Set parameters for compute shader.
+        int type = (int)emitter;
+        cs.SetInt("_EmitterType", type);
+        cs.SetFloat("_EmitterSize", emitterSize);
         cs.SetFloat("_TimeStep", Time.deltaTime);
         startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;
         startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;

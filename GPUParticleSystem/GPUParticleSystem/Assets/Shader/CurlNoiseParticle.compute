@@ -19,6 +19,8 @@ struct ParticleData
 // Constant value buffer.
 cbuffer CB
 {
+	int _EmitterType;
+	float _EmitterSize;
 	float _TimeStep;
 	float _MaxLifeSpan;
 	float _MinLifeSpan;
@@ -86,9 +88,18 @@ void CSMain ( uint3 Gid  : SV_GroupID,
 	if (age <= 0)
 	{
 		// Reset speed, position and lifespan.
-		float3 rnd = randomInsideUnitSphere(float2(idx, 0));
-		velocity = rnd;
-		position = rnd;
+		if (_EmitterType == 0)
+		{
+			velocity = float3(0, abs(rand(float2(idx, 0))), 0);
+			position = float3((rand(float2(idx, idx)) * 2.0 - 1.0), 0, (rand(float2(idx, -idx)) * 2.0 - 1.0)) * _EmitterSize;
+		}
+		else if (_EmitterType == 1)
+		{
+			float3 rnd = randomInsideUnitSphere(float2(idx, 0));
+			velocity = rnd;
+			position = rnd * _EmitterSize;
+		}
+
 		lifespan = _MinLifeSpan + clamp(rand(float2(idx, 0)),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
 		_ParticleBuffer[idx].lifespan = lifespan;
 		age = 1.0;
