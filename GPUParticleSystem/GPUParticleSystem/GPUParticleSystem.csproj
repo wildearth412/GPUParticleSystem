@@ -99,6 +99,11 @@
     <Compile Include="Assets\_GPUParticleSystem\Script\Noise\CurlNoise.cs" />
     <Compile Include="Assets\_GPUParticleSystem\Script\Noise\SimplexNoise.cs" />
     <Compile Include="Assets\_GPUParticleSystem\Script\SimpleGPUParticle.cs" />
+    <Compile Include="Assets\Packages\AnimationBaker\Scripts\AnimationClipTextureBaker.cs" />
+    <Compile Include="Assets\Packages\AnimationBaker\Scripts\AnimationTextureBaker.cs" />
+    <Compile Include="Assets\Packages\AnimationBaker\Scripts\AnimatorTextureBaker.cs" />
+    <Compile Include="Assets\Packages\AnimationBaker\Scripts\BoneTest.cs" />
+    <Compile Include="Assets\Packages\AnimationBaker\Scripts\RenderTextureToTexture2D.cs" />
     <Compile Include="Assets\Packages\VertexAnimator\Scripts\BakedAnimation.cs" />
     <Compile Include="Assets\Packages\VertexAnimator\Scripts\CombinedMeshSampler.cs" />
     <Compile Include="Assets\Packages\VertexAnimator\Scripts\Dummy.cs" />
@@ -109,6 +114,9 @@
     <Compile Include="Assets\Packages\VertexAnimator\Scripts\VertexTex.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Packages\AnimationBaker\Shaders\MeshInfoTextureGen.compute" />
+    <None Include="Assets\Packages\AnimationBaker\Shaders\TextureAnimPlayer.shader" />
+    <None Include="Assets\Packages\AnimationBaker\Shaders\TextureAnimPlayer_Distortion.shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime(Instanced).shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime.shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_Repeat.shader" />

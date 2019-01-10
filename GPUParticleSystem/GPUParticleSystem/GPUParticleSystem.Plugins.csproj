@@ -134,6 +134,9 @@
     <Compile Include="Assets\Standard Assets\Utility\WaypointProgressTracker.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Packages\AnimationBaker\Shaders\MeshInfoTextureGen.compute" />
+    <None Include="Assets\Packages\AnimationBaker\Shaders\TextureAnimPlayer.shader" />
+    <None Include="Assets\Packages\AnimationBaker\Shaders\TextureAnimPlayer_Distortion.shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime(Instanced).shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime.shader" />
     <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_Repeat.shader" />
