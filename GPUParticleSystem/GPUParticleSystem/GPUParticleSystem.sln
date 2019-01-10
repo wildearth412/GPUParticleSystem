@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPUParticleSystem.Plugins",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPUParticleSystem.Editor.Plugins", "GPUParticleSystem.Editor.Plugins.csproj", "{A75BD298-F12D-D4BE-AB2E-ADDB60833053}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPUParticleSystem.Editor", "GPUParticleSystem.Editor.csproj", "{EEA3D5B3-65DA-BEFB-049A-E417C4E8ABFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{A75BD298-F12D-D4BE-AB2E-ADDB60833053}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A75BD298-F12D-D4BE-AB2E-ADDB60833053}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A75BD298-F12D-D4BE-AB2E-ADDB60833053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEA3D5B3-65DA-BEFB-049A-E417C4E8ABFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEA3D5B3-65DA-BEFB-049A-E417C4E8ABFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEA3D5B3-65DA-BEFB-049A-E417C4E8ABFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEA3D5B3-65DA-BEFB-049A-E417C4E8ABFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

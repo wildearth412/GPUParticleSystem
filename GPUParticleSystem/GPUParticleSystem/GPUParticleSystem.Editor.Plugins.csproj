@@ -151,15 +151,22 @@
     <Compile Include="Assets\Standard Assets\Editor\CrossPlatformInput\CrossPlatformInputInitialize.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shader\CurlNoiseParticle.compute" />
-    <None Include="Assets\Shader\CurlNoiseParticle.shader" />
-    <None Include="Assets\Shader\Noise.cginc" />
-    <None Include="Assets\Shader\SimpleParticle.compute" />
-    <None Include="Assets\Shader\SimpleParticle.shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime(Instanced).shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_OneTime.shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_Repeat.shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_Standard(Instanced).shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_Standard.shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTex_VisNormal.shader" />
+    <None Include="Assets\Packages\VertexAnimator\Shader\AnimTexture.cginc" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
+    <None Include="Assets\_GPUParticleSystem\Shader\CurlNoiseParticle.compute" />
+    <None Include="Assets\_GPUParticleSystem\Shader\CurlNoiseParticle.shader" />
+    <None Include="Assets\_GPUParticleSystem\Shader\Noise.cginc" />
+    <None Include="Assets\_GPUParticleSystem\Shader\SimpleParticle.compute" />
+    <None Include="Assets\_GPUParticleSystem\Shader\SimpleParticle.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
