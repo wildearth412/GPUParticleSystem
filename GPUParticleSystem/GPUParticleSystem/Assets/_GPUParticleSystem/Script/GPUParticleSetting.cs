@@ -8,8 +8,7 @@ public static class GPUParticleSetting
     {
         Plane = 0,
         Sphere = 1,
-        Box = 2,
-        Mesh = 3
+        Mesh = 2
     }
 
     public enum NoiseType : int

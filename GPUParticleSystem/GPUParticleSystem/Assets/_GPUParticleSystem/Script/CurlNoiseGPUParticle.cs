@@ -16,12 +16,24 @@ public struct ParticleDataAlpha
 public class CurlNoiseGPUParticle : MonoBehaviour
 {
     // Power 15 of 2.
-    const int NUM_PARTICLES = 32768;
+    private const int NUM_PARTICLES = 32768;
 
     // Num of threads in thread group.
-    const int NUM_THREAD_X = 8;
-    const int NUM_THREAD_Y = 1;
-    const int NUM_THREAD_Z = 1;
+    private const int NUM_THREAD_X = 8;
+    private const int NUM_THREAD_Y = 1;
+    private const int NUM_THREAD_Z = 1;
+
+    // Kernal Names.
+    private static string INIT_KERNAL_NAME = "CSInit";
+    private static string UPDATE_KERNAL_NAME = "CSUpdate";
+
+    // Kernal Buffers/Textures.
+    private static string PARTICLE_BUFFER = "_ParticleBuffer";
+    private static string VERTEX_POSITION = "_VertexPos";
+
+    // Kernal IDs.
+    private int INIT_KERNAL_ID;
+    private int UPDATE_KERNAL_ID;
 
     public ComputeShader particleComputeShader;
     public Shader particleShader;
@@ -36,6 +48,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
     public float emitterSize = 1.0f;
+    public Mesh emitterMesh;
+    private Mesh emitterMeshPrev;
 
     public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
     public float noiseAmount = 1.0f;
@@ -70,9 +84,16 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private void Start()
     {
+        // Create particleBuffer.
         particleBuffer = new ComputeBuffer(NUM_PARTICLES, Marshal.SizeOf(typeof(ParticleDataAlpha)));
+        // Get the kernel ID.
+        UPDATE_KERNAL_ID = particleComputeShader.FindKernel(UPDATE_KERNAL_NAME);
 
         int emtype = (int)emitter;    
+        if(emtype == 2)
+        {
+            emitterMeshPrev = emitterMesh;
+        }
         var pData = new ParticleDataAlpha[NUM_PARTICLES];
         for (int i = 0; i < pData.Length; i++)
         {
@@ -89,6 +110,10 @@ public class CurlNoiseGPUParticle : MonoBehaviour
                 pData[i].position = Random.insideUnitSphere * emitterSize;
                 //pData[i].velocity = Vector3.Scale(Random.insideUnitSphere, GetNoise(pData[i].position));
                 pData[i].velocity = Random.insideUnitSphere + GetNoise(pData[i].position);
+            }
+            else if (emtype == 2)
+            {
+
             }
             
             startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;
@@ -115,9 +140,6 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         // Calculate the num of thread groups.
         int numThreadGroup = NUM_PARTICLES / NUM_THREAD_X;
 
-        // Get the kernel ID.
-        int kernelID = cs.FindKernel("CSMain");
-
         // Set parameters for compute shader.
         int emtype = (int)emitter;
         cs.SetInt("_EmitterType", emtype);
@@ -134,10 +156,10 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
 
         // Set compute buffer for compute shader.
-        cs.SetBuffer(kernelID, "_ParticleBuffer", particleBuffer);
+        cs.SetBuffer(UPDATE_KERNAL_ID, PARTICLE_BUFFER, particleBuffer);
 
         // Execude compute shader.
-        cs.Dispatch(kernelID, numThreadGroup, 1, 1);
+        cs.Dispatch(UPDATE_KERNAL_ID, numThreadGroup, 1, 1);
 
         // Calculate the inverse view matrix.
         var inverseViewMatrix = renderCam.worldToCameraMatrix.inverse;
@@ -158,14 +180,24 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (particleBuffer != null)
-        {
-            particleBuffer.Release();
-        }
+        ReleaseBuffers();
 
         if (particleMat != null)
         {
             DestroyImmediate(particleMat);
         }
+    }
+
+    private void OnDisable()
+    {
+        ReleaseBuffers();
+    }
+
+    private void ReleaseBuffers()
+    {
+        if (particleBuffer != null)
+        {
+            particleBuffer.Release();
+        }            
     }
 }
