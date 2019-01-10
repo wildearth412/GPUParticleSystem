@@ -7,6 +7,8 @@
 
 #define PI 3.14159265
 
+#include "Assets/Shader/Noise.cginc"
+
 // Struct of particle data.
 struct ParticleData
 {
@@ -21,6 +23,8 @@ cbuffer CB
 {
 	int _EmitterType;
 	float _EmitterSize;
+	int _NoiseType;
+	float _NoiseAmount;
 	float _TimeStep;
 	float _MaxLifeSpan;
 	float _MinLifeSpan;
@@ -52,6 +56,16 @@ float3 randomInsideUnitSphere(float2 v)
 	float z = r * cos(th);
 
 	return float3 (x,y,z);
+}
+
+float3 getNoise(float3 v)
+{
+	float3 noiseFactor = float3(1.0,1.0,1.0);
+	if (_NoiseType == 1)
+	{
+		noiseFactor = GetCurlNoise(v) * _NoiseAmount;
+	}
+	return noiseFactor;
 }
 
 // Kernel Function.
@@ -87,23 +101,28 @@ void CSMain ( uint3 Gid  : SV_GroupID,
 		lifespan <= 0)*/
 	if (age <= 0)
 	{
-		// Reset speed, position and lifespan.
+		// Reset speed, position and lifespan.		
 		if (_EmitterType == 0)
 		{
-			velocity = float3(0, abs(rand(float2(idx, 0))), 0);
-			position = float3((rand(float2(idx, idx)) * 2.0 - 1.0), 0, (rand(float2(idx, -idx)) * 2.0 - 1.0)) * _EmitterSize;
+			position = float3((rand(float2(idx, idx)) * 2.0 - 1.0), 0, (rand(float2(idx, -idx)) * 2.0 - 1.0)) * _EmitterSize;		
+			velocity = float3( rand(float2(idx, idx)), 1.0 - rand(float2(idx, 0)) * 0.5, rand(float2(0, idx)) );
 		}
 		else if (_EmitterType == 1)
 		{
-			float3 rnd = randomInsideUnitSphere(float2(idx, 0));
-			velocity = rnd;
+			float3 rnd = randomInsideUnitSphere(float2(idx, 0));			
 			position = rnd * _EmitterSize;
+			velocity = rnd;
 		}
 
 		lifespan = _MinLifeSpan + clamp(rand(float2(idx, 0)),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
 		_ParticleBuffer[idx].lifespan = lifespan;
 		age = 1.0;
 	}
+
+	// Apply noise.
+	float3 n = getNoise(position);
+	//n = float3(n.x, abs(n.y), n.z);
+	velocity += n;
 
 	// Write speed, position and lifespan into buffer.
 	_ParticleBuffer[idx].velocity = velocity;

@@ -80,13 +80,15 @@ public class CurlNoiseGPUParticle : MonoBehaviour
             {
                 pData[i].position = new Vector3((Random.value * 2.0f - 1.0f), 0, (Random.value * 2.0f - 1.0f)) * emitterSize;
                 Vector3 n = GetNoise(pData[i].position);
-                n = new Vector3(n.x,Mathf.Abs(n.y),n.z);
-                pData[i].velocity = Vector3.Scale(new Vector3(Random.value, (1.0f - Random.value * 0.5f), Random.value), n);
+                //n = new Vector3(n.x,Mathf.Abs(n.y),n.z);
+                //pData[i].velocity = Vector3.Scale(new Vector3(Random.value, (1.0f - Random.value * 0.5f), Random.value), n);
+                pData[i].velocity = new Vector3(Random.value, (1.0f - Random.value * 0.5f), Random.value) + n;
             }
             else if (emtype == 1)
             {
                 pData[i].position = Random.insideUnitSphere * emitterSize;
-                pData[i].velocity = Vector3.Scale(Random.insideUnitSphere, GetNoise(pData[i].position));
+                //pData[i].velocity = Vector3.Scale(Random.insideUnitSphere, GetNoise(pData[i].position));
+                pData[i].velocity = Random.insideUnitSphere + GetNoise(pData[i].position);
             }
             
             startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;
@@ -117,9 +119,12 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         int kernelID = cs.FindKernel("CSMain");
 
         // Set parameters for compute shader.
-        int type = (int)emitter;
-        cs.SetInt("_EmitterType", type);
+        int emtype = (int)emitter;
+        cs.SetInt("_EmitterType", emtype);
         cs.SetFloat("_EmitterSize", emitterSize);
+        int ntype = (int)noise;
+        cs.SetInt("_NoiseType", ntype);
+        cs.SetFloat("_NoiseAmount", noiseAmount);
         cs.SetFloat("_TimeStep", Time.deltaTime);
         startMaxLifespan = startMaxLifespan <= 0 ? 0.2f : startMaxLifespan;
         startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;
