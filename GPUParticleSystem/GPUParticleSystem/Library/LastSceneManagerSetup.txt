@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scene/CurlNoiseGPUParticle.unity
+- path: Assets/_GPUParticleSystem/Scene/EmitFromCharacter.unity
   isLoaded: 1
   isActive: 1
