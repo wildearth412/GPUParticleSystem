@@ -24,9 +24,12 @@ cbuffer CB
 {
 	int _EmitterType;
 	float _EmitterSize;
+	bool _UseVertexAnimation;   // If use vertex animation for mesh emitter.
+	int _VertexCount;           // The count of emitter mesh vertices.
 	int _NoiseType;
 	float _NoiseAmount;
-	float _TimeStep;
+	float _Time;                // Current time since level load.
+	float _TimeStep;            // Current delta time.
 	float _MaxLifeSpan;
 	float _MinLifeSpan;
 	float3 _Gravity;
@@ -35,6 +38,9 @@ cbuffer CB
 
 // Create a readable and writable particles data buffer.
 RWStructuredBuffer<ParticleData> _ParticleBuffer;
+
+// Create a buffer to store static mesh emitter vertex position.
+StructuredBuffer<float3> _VertexPositionBuffer;
 
 // Create a RenderTexture with enableRandomWrite flag and set it with cs.SetTexture. 
 //RWTexture2D<float4> _VertexPos;
@@ -78,7 +84,18 @@ void CSInit(uint3 Gid  : SV_GroupID,
 			uint3 DTid : SV_DispatchThreadID,
 			uint  GI   : SV_GroupIndex)
 {
+	// The index of particles.
+	int idx = DTid.x;
+	// Get random index in emitter mesh vertices indeies.
+	int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
+	// Init the particle position with a random vertex postion.
+	_ParticleBuffer[idx].position = _VertexPositionBuffer[idxv];
+	
+	//_ParticleBuffer[idx].velocity = 
 
+	float lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+	_ParticleBuffer[idx].lifespan = lifespan;
+	_ParticleBuffer[idx].age = 1.0;
 }
 
 [numthreads(NUM_THREAD_X, NUM_THREAD_Y, NUM_THREAD_Z)]  // Set num of threads.
@@ -111,8 +128,8 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		// Reset speed, position and lifespan.		
 		if (_EmitterType == 0)    // Plane.
 		{
-			position = float3((rand(float2(idx, idx)) * 2.0 - 1.0), 0, (rand(float2(idx, -idx)) * 2.0 - 1.0)) * _EmitterSize;		
-			velocity = float3( rand(float2(idx, idx)), 1.0 - rand(float2(idx, 0)) * 0.5, rand(float2(0, idx)) );
+			position = float3( (rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0) ) * _EmitterSize;
+			velocity = float3( rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) );
 		}
 		else if (_EmitterType == 1)     // Sphere.
 		{
@@ -125,7 +142,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 
 		}
 
-		lifespan = _MinLifeSpan + clamp(rand(float2(idx, 0)),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
+		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
 		_ParticleBuffer[idx].lifespan = lifespan;
 		age = 1.0;
 	}
