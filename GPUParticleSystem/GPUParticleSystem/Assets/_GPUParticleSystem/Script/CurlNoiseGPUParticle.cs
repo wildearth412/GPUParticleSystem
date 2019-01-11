@@ -94,7 +94,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         {
             emitterMeshPrev = emitterMesh;
         }
-        var pData = new ParticleDataAlpha[NUM_PARTICLES];
+
+        /*var pData = new ParticleDataAlpha[NUM_PARTICLES];
         for (int i = 0; i < pData.Length; i++)
         {
             if (emtype == 0)  // Plane.
@@ -122,7 +123,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
             pData[i].age = 1.0f;
         }
         particleBuffer.SetData(pData);
-        pData = null;
+        pData = null;*/
 
         particleMat = new Material(particleShader);
         particleMat.hideFlags = HideFlags.HideAndDontSave;
@@ -136,12 +137,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         INIT_KERNEL_ID = particleComputeShader.FindKernel(INIT_KERNEL_NAME);
         UPDATE_KERNEL_ID = particleComputeShader.FindKernel(UPDATE_KERNEL_NAME);
 
-        particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
-
-        startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;
-        startMaxLifespan = startMaxLifespan <= startMinLifespan ? startMinLifespan + 0.1f : startMaxLifespan;    
-        particleComputeShader.SetFloat("_MaxLifeSpan", startMaxLifespan);
-        particleComputeShader.SetFloat("_MinLifeSpan", startMinLifespan);
+        SetupComputeShaderParameters();
 
         if (emitterMesh != null)
         {
@@ -150,9 +146,29 @@ public class CurlNoiseGPUParticle : MonoBehaviour
             uvBuffer = UVsToComputeBuffer(emitterMesh.uv);
 
             particleComputeShader.SetInt("_VertexCount", count);
-            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION, vertexPositionBuffer);
-            particleComputeShader.Dispatch(INIT_KERNEL_ID, NUM_PARTICLES / NUM_THREAD_X, 1, 1);
-        }   
+            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION, vertexPositionBuffer);            
+        }
+
+        particleComputeShader.Dispatch(INIT_KERNEL_ID, NUM_PARTICLES / NUM_THREAD_X, 1, 1);
+    }
+
+    private void SetupComputeShaderParameters()
+    {
+        int emtype = (int)emitter;
+        particleComputeShader.SetInt("_EmitterType", emtype);
+        particleComputeShader.SetFloat("_EmitterSize", emitterSize);
+        particleComputeShader.SetBool("_UseVertexAnimation", useVertexAnimation);
+        int ntype = (int)noise;
+        particleComputeShader.SetInt("_NoiseType", ntype);
+        particleComputeShader.SetFloat("_NoiseAmount", noiseAmount);
+        particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
+        particleComputeShader.SetFloat("_TimeStep", Time.deltaTime);
+        startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;
+        startMaxLifespan = startMaxLifespan <= startMinLifespan ? startMinLifespan + 0.1f : startMaxLifespan;
+        particleComputeShader.SetFloat("_MaxLifeSpan", startMaxLifespan);
+        particleComputeShader.SetFloat("_MinLifeSpan", startMinLifespan);
+        particleComputeShader.SetVector("_Gravity", gravity);
+        //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
     }
 
     private ComputeBuffer VerticesToComputeBuffer(Vector3[] verts)
@@ -171,31 +187,29 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private void Update()
     {
+        if(emitterMesh == null || particleMat == null) { return; }
 
+        // Check if emitter mesh was updated.
+        if(emitterMesh != emitterMeshPrev)
+        {
+            emitterMeshPrev = emitterMesh;
+            ReleaseBuffers();
+            SetupComputeShader();
+        }
+
+        // Set some interactions.
+        //if (Input.GetMouseButton(0)) { }
     }
 
     private void OnRenderObject()
     {
-        ComputeShader cs = particleComputeShader;
-
         // Calculate the num of thread groups.
         int numThreadGroup = NUM_PARTICLES / NUM_THREAD_X;
 
         // Set parameters for compute shader.
-        int emtype = (int)emitter;
-        cs.SetInt("_EmitterType", emtype);
-        cs.SetFloat("_EmitterSize", emitterSize);
-        cs.SetBool("_UseVertexAnimation", useVertexAnimation);
-        int ntype = (int)noise;
-        cs.SetInt("_NoiseType", ntype);
-        cs.SetFloat("_NoiseAmount", noiseAmount);
-        cs.SetFloat("_TimeStep", Time.deltaTime);
-        startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;
-        startMaxLifespan = startMaxLifespan <= startMinLifespan ? startMinLifespan + 0.1f : startMaxLifespan;
-        cs.SetFloat("_MaxLifeSpan", startMaxLifespan);
-        cs.SetFloat("_MinLifeSpan", startMinLifespan);
-        cs.SetVector("_Gravity", gravity);
-        //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
+        SetupComputeShaderParameters();
+
+        ComputeShader cs = particleComputeShader;
 
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
@@ -233,13 +247,17 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     private void OnDisable()
     {
         ReleaseBuffers();
+
+        if (particleMat != null)
+        {
+            DestroyImmediate(particleMat);
+        }
     }
 
     private void ReleaseBuffers()
     {
-        if (particleBuffer != null)
-        {
-            particleBuffer.Release();
-        }            
+        particleBuffer.Release();
+        vertexPositionBuffer.Release();
+        uvBuffer.Release();          
     }
 }

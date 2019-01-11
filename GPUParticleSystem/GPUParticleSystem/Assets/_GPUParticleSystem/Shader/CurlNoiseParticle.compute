@@ -9,6 +9,7 @@
 #define PI 3.14159265
 
 #include "Assets/_GPUParticleSystem/Shader/Noise.cginc"
+#include "Assets/_GPUParticleSystem/Shader/AnimTexture.cginc"
 
 // Struct of particle data.
 struct ParticleData
@@ -86,12 +87,34 @@ void CSInit(uint3 Gid  : SV_GroupID,
 {
 	// The index of particles.
 	int idx = DTid.x;
-	// Get random index in emitter mesh vertices indeies.
-	int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
-	// Init the particle position with a random vertex postion.
-	_ParticleBuffer[idx].position = _VertexPositionBuffer[idxv];
-	
-	//_ParticleBuffer[idx].velocity = 
+
+	float3 velocity = float3(0,1.0,0);
+	float3 position = float3(0,0,0);
+
+	if (_EmitterType == 0)          // Plane.
+	{
+		position = float3((rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0)) * _EmitterSize;
+		velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
+	}
+	else if (_EmitterType == 1)     // Sphere.
+	{
+		float3 rnd = randomInsideUnitSphere(float2(idx, 0));
+		position = rnd * _EmitterSize;
+		velocity = rnd;
+	}
+	else if (_EmitterType == 2)     // Mesh.
+	{
+		// Get random index in emitter mesh vertices indeies.
+		int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
+		// Init the particle position with a random vertex postion.
+		position = _VertexPositionBuffer[idxv];
+		velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
+	}
+
+	float3 n = getNoise(position);
+	velocity += n;
+	_ParticleBuffer[idx].velocity = velocity;
+	_ParticleBuffer[idx].position = position;
 
 	float lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
 	_ParticleBuffer[idx].lifespan = lifespan;
@@ -126,7 +149,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	if (age <= 0)
 	{
 		// Reset speed, position and lifespan.		
-		if (_EmitterType == 0)    // Plane.
+		if (_EmitterType == 0)          // Plane.
 		{
 			position = float3( (rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0) ) * _EmitterSize;
 			velocity = float3( rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) );
@@ -139,7 +162,11 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		}
 		else if (_EmitterType == 2)     // Mesh.
 		{
-
+			// Get random index in emitter mesh vertices indeies.
+			int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
+			// Init the particle position with a random vertex postion.
+			position = _VertexPositionBuffer[idxv];
+			velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
 		}
 
 		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
