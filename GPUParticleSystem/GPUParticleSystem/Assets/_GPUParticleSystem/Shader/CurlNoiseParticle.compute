@@ -114,7 +114,7 @@ void CSInit(uint3 Gid  : SV_GroupID,
 
 	if (_NoiseType != 0)
 	{
-		float3 n = getNoise(position);
+		float3 n = getNoise(position * 0.5);
 		velocity += n;
 	}
 	
@@ -182,7 +182,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	if (_NoiseType != 0)
 	{
 		// Apply noise.
-		float3 n = getNoise(position);
+		float3 n = getNoise(position * 0.5);
 		velocity += n;
 	}
 	

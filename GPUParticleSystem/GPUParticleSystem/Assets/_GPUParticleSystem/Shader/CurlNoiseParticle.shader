@@ -72,7 +72,7 @@ Shader "Hidden/CurlNoiseParticleRender"
 		float alpha = clamp(_ParticleBuffer[id].age, 0, 1);
 		o.color = float4(0.5, 0.5, 0.5, alpha);
 		//o.color = float4(0.5 + 0.5 * normalize(_ParticleBuffer[id].velocity), alpha);
-		o.color = float4(0.5 + 0.5 * normalize(_ParticleBuffer[id].position), alpha);
+		//o.color = float4(0.5 + 0.5 * normalize(_ParticleBuffer[id].position), alpha);
 		return o;
 	}
 
