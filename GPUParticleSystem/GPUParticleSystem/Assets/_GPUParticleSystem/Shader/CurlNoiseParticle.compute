@@ -9,7 +9,7 @@
 #define PI 3.14159265
 
 #include "Assets/_GPUParticleSystem/Shader/Noise.cginc"
-#include "Assets/_GPUParticleSystem/Shader/AnimTexture.cginc"
+//#include "Assets/_GPUParticleSystem/Shader/AnimTexture.cginc"
 
 // Struct of particle data.
 struct ParticleData
@@ -26,6 +26,7 @@ cbuffer CB
 	int _EmitterType;
 	float _EmitterSize;
 	bool _UseVertexAnimation;   // If use vertex animation for mesh emitter.
+	float _AnimLength;          // Animation length in sec.
 	int _VertexCount;           // The count of emitter mesh vertices.
 	int _NoiseType;
 	float _NoiseAmount;
@@ -44,8 +45,9 @@ RWStructuredBuffer<ParticleData> _ParticleBuffer;
 // Create a buffer to store static mesh emitter vertex position.
 StructuredBuffer<float3> _VertexPositionBuffer;
 
-// Create a RenderTexture with enableRandomWrite flag and set it with cs.SetTexture. 
-//RWTexture2D<float4> _VertexPos;
+// Create a RenderTexture (with enableRandomWrite flag) and set it with cs.SetTexture. 
+//RWTexture2D<float4> _VertexPosTex;
+Texture2D<float4> _VertexPosTex;
 
 // Function that returns a random value from 0 to 1.0
 float rand(float2 v)
@@ -65,6 +67,18 @@ float3 randomInsideUnitSphere(float2 v)
 	float z = r * cos(th);
 
 	return float3 (x,y,z);
+}
+
+int2 animTexUvToPixel(float2 uv)
+{
+
+}
+
+float4 getAnimTexColor(int idx)
+{
+	float u = idx / _VertexCount;
+	float v = fmod(_Time / _AnimLength, 1.0);
+	return _VertexPosTex[animTexUvToPixel(float2(u, v))];
 }
 
 float3 getNoise(float3 v)
@@ -107,8 +121,17 @@ void CSInit(uint3 Gid  : SV_GroupID,
 	{
 		// Get random index in emitter mesh vertices indeies.
 		int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
-		// Init the particle position with a random vertex postion.
-		position = _VertexPositionBuffer[idxv] * _EmitterSize;
+		if (_UseVertexAnimation)
+		{
+			// Init the particle position with a random vertex postion in animation.
+			//position = 
+		}
+		else
+		{
+			// Init the particle position with a random vertex postion.
+			position = _VertexPositionBuffer[idxv] * _EmitterSize;
+		}
+		
 		velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
 

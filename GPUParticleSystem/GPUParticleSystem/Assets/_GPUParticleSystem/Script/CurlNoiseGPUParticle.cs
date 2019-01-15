@@ -30,6 +30,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     // Kernal Buffers/Textures.
     private static string PARTICLE_BUFFER = "_ParticleBuffer";
     private static string VERTEX_POSITION_BUFFER = "_VertexPositionBuffer";
+    private static string VERTEX_POSITION_TEX = "_VertexPosTex";
 
     // Kernal IDs.
     private int INIT_KERNEL_ID;
@@ -46,6 +47,9 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public float particleSize = 0.03f;
     public float startMaxLifespan = 5.0f;
     public float startMinLifespan = 3.0f;
+
+    public Texture2D vertexPosTex;
+    public float animeLength;
 
     public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
     public float emitterSize = 1.0f;
@@ -139,6 +143,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         UPDATE_KERNEL_ID = particleComputeShader.FindKernel(UPDATE_KERNEL_NAME);
 
         SetupComputeShaderParameters();
+        particleComputeShader.SetFloat("_AnimLength", animeLength);
 
         if (emitterMesh != null)
         {
@@ -216,6 +221,9 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
+
+        // Set vertex position texture for compute shader.
+        cs.SetTexture(UPDATE_KERNEL_ID, VERTEX_POSITION_TEX, vertexPosTex);
 
         // Execude compute shader.
         cs.Dispatch(UPDATE_KERNEL_ID, numThreadGroup, 1, 1);
