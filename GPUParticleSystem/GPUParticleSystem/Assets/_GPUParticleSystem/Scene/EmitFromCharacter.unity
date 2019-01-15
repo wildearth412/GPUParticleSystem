@@ -5159,7 +5159,7 @@ MonoBehaviour:
   emitterSize: 1
   useVertexAnimation: 1
   emitterMesh: {fileID: 4300002, guid: a85d92b72304a79449904f3b49e3d5ea, type: 3}
-  noise: 1
+  noise: 0
   noiseAmount: 1
   renderCam: {fileID: 1987344441}
 --- !u!23 &1954813116

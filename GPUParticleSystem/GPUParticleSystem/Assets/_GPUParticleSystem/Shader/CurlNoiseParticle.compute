@@ -108,7 +108,7 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		// Get random index in emitter mesh vertices indeies.
 		int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 		// Init the particle position with a random vertex postion.
-		position = _VertexPositionBuffer[idxv];
+		position = _VertexPositionBuffer[idxv] * _EmitterSize;
 		velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
 
@@ -170,7 +170,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 			// Get random index in emitter mesh vertices indeies.
 			int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 			// Init the particle position with a random vertex postion.
-			position = _VertexPositionBuffer[idxv];
+			position = _VertexPositionBuffer[idxv] * _EmitterSize;
 			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 		}
 

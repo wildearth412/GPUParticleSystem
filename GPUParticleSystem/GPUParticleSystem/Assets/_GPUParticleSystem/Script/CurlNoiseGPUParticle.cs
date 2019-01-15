@@ -29,7 +29,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     // Kernal Buffers/Textures.
     private static string PARTICLE_BUFFER = "_ParticleBuffer";
-    private static string VERTEX_POSITION = "_VertexPositionBuffer";
+    private static string VERTEX_POSITION_BUFFER = "_VertexPositionBuffer";
 
     // Kernal IDs.
     private int INIT_KERNEL_ID;
@@ -147,7 +147,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
             uvBuffer = UVsToComputeBuffer(emitterMesh.uv);
 
             particleComputeShader.SetInt("_VertexCount", count);
-            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION, vertexPositionBuffer);            
+            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);            
         }
 
         particleComputeShader.Dispatch(INIT_KERNEL_ID, NUM_PARTICLES / NUM_THREAD_X, 1, 1);
@@ -215,6 +215,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
+        cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
 
         // Execude compute shader.
         cs.Dispatch(UPDATE_KERNEL_ID, numThreadGroup, 1, 1);
