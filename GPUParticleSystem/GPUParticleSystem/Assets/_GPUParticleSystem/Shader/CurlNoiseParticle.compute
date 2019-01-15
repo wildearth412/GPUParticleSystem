@@ -34,6 +34,7 @@ cbuffer CB
 	float _MaxLifeSpan;
 	float _MinLifeSpan;
 	float3 _Gravity;
+	float _Speed;
 	//float3 _AreaSize;
 };
 
@@ -68,7 +69,7 @@ float3 randomInsideUnitSphere(float2 v)
 
 float3 getNoise(float3 v)
 {
-	float3 noiseFactor = float3(1.0,1.0,1.0);
+	float3 noiseFactor = float3(0,0,0);
 	if (_NoiseType == 1)
 	{
 		noiseFactor = GetCurlNoise(v) * _NoiseAmount;
@@ -88,13 +89,13 @@ void CSInit(uint3 Gid  : SV_GroupID,
 	// The index of particles.
 	int idx = DTid.x;
 
-	float3 velocity = float3(0,1.0,0);
+	float3 velocity = float3(0,0,0);
 	float3 position = float3(0,0,0);
 
 	if (_EmitterType == 0)          // Plane.
 	{
 		position = float3((rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0)) * _EmitterSize;
-		velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
+		velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time)))) * 2.0 - 1.0, 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time)))) * 2.0 - 1.0);
 	}
 	else if (_EmitterType == 1)     // Sphere.
 	{
@@ -108,11 +109,15 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 		// Init the particle position with a random vertex postion.
 		position = _VertexPositionBuffer[idxv];
-		velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
+		velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
 
-	float3 n = getNoise(position);
-	velocity += n;
+	if (_NoiseType != 0)
+	{
+		float3 n = getNoise(position);
+		velocity += n;
+	}
+	
 	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;
 
@@ -142,7 +147,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Calculate the speed.
 	velocity += acceleration * _TimeStep;
 	// Calculate the postion.
-	position += velocity * _TimeStep;
+	position += velocity * _TimeStep * _Speed;
 	// Calculate the age.
 	age = (lifespan * age - _TimeStep) / lifespan;
 
@@ -152,7 +157,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		if (_EmitterType == 0)          // Plane.
 		{
 			position = float3( (rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0) ) * _EmitterSize;
-			velocity = float3( rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) );
+			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time)))) * 2.0 - 1.0, 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time)))) * 2.0 - 1.0);
 		}
 		else if (_EmitterType == 1)     // Sphere.
 		{
@@ -166,7 +171,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 			int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 			// Init the particle position with a random vertex postion.
 			position = _VertexPositionBuffer[idxv];
-			velocity = float3(rand(float2(idx * 1.2432, idx + frac(_Time))), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))));
+			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 		}
 
 		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
@@ -174,11 +179,13 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		age = 1.0;
 	}
 
-	// Apply noise.
-	float3 n = getNoise(position);
-	//n = float3(n.x, abs(n.y), n.z);
-	velocity += n;
-
+	if (_NoiseType != 0)
+	{
+		// Apply noise.
+		float3 n = getNoise(position);
+		velocity += n;
+	}
+	
 	// Write speed, position and lifespan into buffer.
 	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;

@@ -39,6 +39,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public Shader particleShader;
 
     public Vector3 gravity = new Vector3(0, 0.1f, 0);
+    public float speed = 1.0f;
     //public Vector3 areaSize = new Vector3(10.0f, 10.0f, 10.0f);
 
     public Texture2D particleTex;
@@ -168,6 +169,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         particleComputeShader.SetFloat("_MaxLifeSpan", startMaxLifespan);
         particleComputeShader.SetFloat("_MinLifeSpan", startMinLifespan);
         particleComputeShader.SetVector("_Gravity", gravity);
+        particleComputeShader.SetFloat("_Speed", speed);
         //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
     }
 
