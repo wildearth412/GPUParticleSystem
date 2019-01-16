@@ -53,6 +53,10 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public float animeLength;
     public int animeTexSizeY;
 
+    public Transform character;
+    private Vector3 characterPosition;
+    private Vector3 characterDirection;
+
     public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
     public float emitterSize = 1.0f;   
     public Mesh emitterMesh;
@@ -93,6 +97,9 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private void Start()
     {
+        characterPosition = character.position;
+        characterDirection = character.forward;
+
         SetupComputeShader();
 
         int emtype = (int)emitter;    
@@ -177,6 +184,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         particleComputeShader.SetFloat("_MinLifeSpan", startMinLifespan);
         particleComputeShader.SetVector("_Gravity", gravity);
         particleComputeShader.SetFloat("_Speed", speed);
+        particleComputeShader.SetVector("_CharPosition", characterPosition);
+        particleComputeShader.SetVector("_CharDirection", characterDirection);
         //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
     }
 
@@ -196,7 +205,10 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private void Update()
     {
-        if(emitterMesh == null || particleMat == null) { return; }
+        characterPosition = character.position;
+        characterDirection = character.forward;
+
+        if (emitterMesh == null || particleMat == null) { return; }
 
         // Check if emitter mesh was updated.
         if(emitterMesh != emitterMeshPrev)

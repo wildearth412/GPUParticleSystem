@@ -575,7 +575,7 @@ Transform:
   m_PrefabParentObject: {fileID: 400316, guid: b235179bd2a63d1468dd430670338c55, type: 3}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 249700958}
-  m_LocalRotation: {x: 0.53267515, y: 0.07034045, z: 0.83613265, w: -0.11041513}
+  m_LocalRotation: {x: 0.5326752, y: 0.070340455, z: 0.83613276, w: -0.110415146}
   m_LocalPosition: {x: 0.000022271464, y: -0.00006150465, z: 0.026027026}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1565,6 +1565,11 @@ Transform:
   m_Father: {fileID: 1270094323}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &572537006 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4335564279707086, guid: 8e87ae5547a38574cb83136d2db498b8,
+    type: 2}
+  m_PrefabInternal: {fileID: 1333836775}
 --- !u!1 &597322598
 GameObject:
   m_ObjectHideFlags: 0
@@ -3147,6 +3152,10 @@ Prefab:
     - target: {fileID: 1460699621933018, guid: 8e87ae5547a38574cb83136d2db498b8, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460699621933018, guid: 8e87ae5547a38574cb83136d2db498b8, type: 2}
+      propertyPath: m_Name
+      value: Horse.Horse_Walk_AniTex
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8e87ae5547a38574cb83136d2db498b8, type: 2}
@@ -5159,6 +5168,7 @@ MonoBehaviour:
   vertexPosTex: {fileID: 2800000, guid: 56b270b7d297106489aa1a67759464c5, type: 2}
   animeLength: 0.8
   animeTexSizeY: 16
+  character: {fileID: 572537006}
   emitter: 2
   emitterSize: 0.5
   emitterMesh: {fileID: 4300002, guid: a85d92b72304a79449904f3b49e3d5ea, type: 3}
@@ -5266,7 +5276,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
