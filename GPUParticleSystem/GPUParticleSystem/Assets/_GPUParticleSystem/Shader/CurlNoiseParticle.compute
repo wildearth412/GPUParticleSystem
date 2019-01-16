@@ -27,6 +27,7 @@ cbuffer CB
 	float _EmitterSize;
 	bool _UseVertexAnimation;   // If use vertex animation for mesh emitter.
 	float _AnimLength;          // Animation length in sec.
+	int _AnimTexelSizeY;        // Animation texture pixel size.
 	int _VertexCount;           // The count of emitter mesh vertices.
 	int _NoiseType;
 	float _NoiseAmount;
@@ -69,16 +70,11 @@ float3 randomInsideUnitSphere(float2 v)
 	return float3 (x,y,z);
 }
 
-int2 animTexUvToPixel(float2 uv)
-{
-
-}
-
 float4 getAnimTexColor(int idx)
 {
-	float u = idx / _VertexCount;
-	float v = fmod(_Time / _AnimLength, 1.0);
-	return _VertexPosTex[animTexUvToPixel(float2(u, v))];
+	int u = idx + 1;
+	int v = fmod(_Time / _AnimLength, 1.0) * _AnimTexelSizeY;
+	return _VertexPosTex[float2(u, v)];
 }
 
 float3 getNoise(float3 v)
@@ -124,7 +120,7 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		if (_UseVertexAnimation)
 		{
 			// Init the particle position with a random vertex postion in animation.
-			//position = 
+			position = getAnimTexColor(idxv) * _EmitterSize;
 		}
 		else
 		{
@@ -192,8 +188,17 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		{
 			// Get random index in emitter mesh vertices indeies.
 			int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
-			// Init the particle position with a random vertex postion.
-			position = _VertexPositionBuffer[idxv] * _EmitterSize;
+			if (_UseVertexAnimation)
+			{
+				// Init the particle position with a random vertex postion in animation.
+				position = getAnimTexColor(idxv) * _EmitterSize;
+			}
+			else
+			{
+				// Init the particle position with a random vertex postion.
+				position = _VertexPositionBuffer[idxv] * _EmitterSize;
+			}
+			
 			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 		}
 

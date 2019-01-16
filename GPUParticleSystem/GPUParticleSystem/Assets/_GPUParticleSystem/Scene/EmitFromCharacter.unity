@@ -575,7 +575,7 @@ Transform:
   m_PrefabParentObject: {fileID: 400316, guid: b235179bd2a63d1468dd430670338c55, type: 3}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 249700958}
-  m_LocalRotation: {x: 0.5326752, y: 0.070340455, z: 0.83613276, w: -0.110415146}
+  m_LocalRotation: {x: 0.53267515, y: 0.07034045, z: 0.83613265, w: -0.11041513}
   m_LocalPosition: {x: 0.000022271464, y: -0.00006150465, z: 0.026027026}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3146,7 +3146,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1460699621933018, guid: 8e87ae5547a38574cb83136d2db498b8, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8e87ae5547a38574cb83136d2db498b8, type: 2}
@@ -5151,13 +5151,16 @@ MonoBehaviour:
   particleShader: {fileID: 4800000, guid: df05bcaa7419b8e469fbad359a193ca5, type: 3}
   gravity: {x: 0, y: 10, z: 0}
   speed: 0.0005
-  particleTex: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+  particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}
   particleSize: 0.005
   startMaxLifespan: 10
   startMinLifespan: 7
-  emitter: 2
-  emitterSize: 1
   useVertexAnimation: 1
+  vertexPosTex: {fileID: 2800000, guid: 56b270b7d297106489aa1a67759464c5, type: 2}
+  animeLength: 0.8
+  animeTexSizeY: 16
+  emitter: 2
+  emitterSize: 0.5
   emitterMesh: {fileID: 4300002, guid: a85d92b72304a79449904f3b49e3d5ea, type: 3}
   noise: 1
   noiseAmount: 6.66
@@ -5168,7 +5171,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1954813114}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_MotionVectors: 1

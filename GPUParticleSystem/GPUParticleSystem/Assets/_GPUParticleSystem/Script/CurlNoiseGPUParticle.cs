@@ -48,12 +48,13 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     public float startMaxLifespan = 5.0f;
     public float startMinLifespan = 3.0f;
 
+    public bool useVertexAnimation = true;
     public Texture2D vertexPosTex;
     public float animeLength;
+    public int animeTexSizeY;
 
     public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
-    public float emitterSize = 1.0f;
-    public bool useVertexAnimation = true;
+    public float emitterSize = 1.0f;   
     public Mesh emitterMesh;
     private Mesh emitterMeshPrev;
 
@@ -144,6 +145,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
         SetupComputeShaderParameters();
         particleComputeShader.SetFloat("_AnimLength", animeLength);
+        particleComputeShader.SetInt("_AnimTexelSizeY", animeTexSizeY);
 
         if (emitterMesh != null)
         {
