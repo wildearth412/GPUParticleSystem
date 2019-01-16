@@ -48,10 +48,10 @@ Shader "Hidden/CurlNoiseParticleRender"
 	// The coords of quad plane vertex position.
 	static const float3 g_positions[4] =
 	{
-		float3(-1, 1.5, 0),
-		float3( 1, 1.5, 0),
-		float3(-1,-1.5, 0),
-		float3( 1,-1.5, 0),
+		float3(-0.4, 2.5, 0),
+		float3( 0.4, 2.5, 0),
+		float3(-0.4,-2.5, 0),
+		float3( 0.4,-2.5, 0),
 	};
 
 	// The coords of quad plane UV position.

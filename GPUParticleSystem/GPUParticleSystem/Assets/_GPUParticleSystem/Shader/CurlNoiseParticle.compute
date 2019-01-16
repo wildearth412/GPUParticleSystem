@@ -163,7 +163,7 @@ void CSInit(uint3 Gid  : SV_GroupID,
 			position = _VertexPositionBuffer[idxv] * _EmitterSize;
 		}
 		
-		velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
+		velocity = float3((rand(float2(idxv * 1.2432, idxv + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxv + _Time, idxv * 0.3421)) * 0.5, (rand(float2(idxv + 4.42312, idxv * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 	}
 
 	if (_NoiseType != 0)
@@ -235,7 +235,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 				position = _VertexPositionBuffer[idxv] * _EmitterSize;
 			}
 			
-			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time))) * 2.0 - 1.0), 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time))) * 2.0 - 1.0));
+			velocity = float3((rand(float2(idxv * 1.2432, idxv + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxv + _Time, idxv * 0.3421)) * 0.5, (rand(float2(idxv + 4.42312, idxv * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 		}
 
 		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
