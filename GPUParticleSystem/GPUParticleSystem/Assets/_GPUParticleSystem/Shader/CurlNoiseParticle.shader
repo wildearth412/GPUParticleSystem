@@ -24,6 +24,7 @@ Shader "Hidden/CurlNoiseParticleRender"
 	{
 		float3 position : TEXCOORD0;
 		float4 color : COLOR;
+		float size : float;
 	};
 
 	// Struct from GeometryShader to FragmentShader.
@@ -47,10 +48,10 @@ Shader "Hidden/CurlNoiseParticleRender"
 	// The coords of quad plane vertex position.
 	static const float3 g_positions[4] =
 	{
-		float3(-1, 1, 0),
-		float3(1, 1, 0),
-		float3(-1,-1, 0),
-		float3(1,-1, 0),
+		float3(-1, 1.5, 0),
+		float3( 1, 1.5, 0),
+		float3(-1,-1.5, 0),
+		float3( 1,-1.5, 0),
 	};
 
 	// The coords of quad plane UV position.
@@ -66,11 +67,13 @@ Shader "Hidden/CurlNoiseParticleRender"
 	v2g vert(uint id : SV_VertexID)   // SV_VertexID : identifier per vertex.
 	{
 		v2g o = (v2g)0;
+		o.size = 1.0 - (1.0 - _ParticleBuffer[id].age) * 0.5;
 		// Particles position.
 		o.position = _ParticleBuffer[id].position;
 		// Particles color.
 		float alpha = clamp(_ParticleBuffer[id].age, 0, 1);
 		//o.color = float4(0.5, 0.5, 0.5, alpha);
+		//o.color = float4(1.0, 1.0, 1.0, alpha);
 		o.color = float4(alpha,0,1.0-alpha, alpha);
 		//o.color = float4(0.5 + 0.5 * normalize(_ParticleBuffer[id].velocity), alpha);
 		//o.color = float4(0.5 + 0.5 * normalize(_ParticleBuffer[id].position), alpha);
@@ -85,7 +88,7 @@ Shader "Hidden/CurlNoiseParticleRender"
 		[unroll]
 		for (int i = 0; i < 4; i++)
 		{
-			float3 position = g_positions[i] * _ParticleSize;
+			float3 position = g_positions[i] * _ParticleSize * In[0].size;
 			position = mul(_InvViewMatrix, position) + In[0].position;
 			o.position = UnityObjectToClipPos(float4(position,1.0));
 
