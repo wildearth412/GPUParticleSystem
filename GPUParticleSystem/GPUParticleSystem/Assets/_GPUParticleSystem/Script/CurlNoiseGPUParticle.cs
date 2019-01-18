@@ -30,6 +30,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     // Kernal Buffers/Textures.
     private static string PARTICLE_BUFFER = "_ParticleBuffer";
     private static string VERTEX_POSITION_BUFFER = "_VertexPositionBuffer";
+    private static string TRIANGLES_BUFFER = "_TrianglesBuffer";
+    private static string TRIANGLE_INDICES_BUFFER = "_TriangleIndicesBuffer";
     private static string VERTEX_POSITION_TEX = "_VertexPosTex";
 
     // Kernal IDs.
@@ -69,6 +71,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     private ComputeBuffer particleBuffer;
     private ComputeBuffer vertexPositionBuffer;     // For mesh emitter vertex position.
+    private ComputeBuffer trianglesBuffer;          // For mesh emitter triangles.
+    private ComputeBuffer triangleIndicesBuffer;    // For mesh emitter triangle indices.
     private ComputeBuffer uvBuffer;                 // For mesh emitter UV.
     private Material particleMat;
 
@@ -157,11 +161,17 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         if (emitterMesh != null)
         {
             int count = emitterMesh.vertexCount;
+            int count2 = 0;
             vertexPositionBuffer = VerticesToComputeBuffer(emitterMesh.vertices);
+            trianglesBuffer = TrianglesToComputeBuffer(emitterMesh.triangles);
+            triangleIndicesBuffer = TriangleIndicesToComputeBuffer(emitterMesh.vertices, emitterMesh.triangles, out count2);
             uvBuffer = UVsToComputeBuffer(emitterMesh.uv);
 
             particleComputeShader.SetInt("_VertexCount", count);
-            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);            
+            particleComputeShader.SetInt("_TriangleIndicesCount", count2);
+            particleComputeShader.SetBuffer(INIT_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
+            particleComputeShader.SetBuffer(INIT_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);
+            particleComputeShader.SetBuffer(INIT_KERNEL_ID, TRIANGLE_INDICES_BUFFER, triangleIndicesBuffer);
         }
 
         particleComputeShader.Dispatch(INIT_KERNEL_ID, NUM_PARTICLES / NUM_THREAD_X, 1, 1);
@@ -194,6 +204,59 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         ComputeBuffer posBuff = new ComputeBuffer(verts.Length, Marshal.SizeOf(typeof(Vector3)));
         posBuff.SetData(verts);
         return posBuff;
+    }
+
+    private ComputeBuffer TrianglesToComputeBuffer(int[] tris)
+    {
+        ComputeBuffer triBuff = new ComputeBuffer(tris.Length, Marshal.SizeOf(typeof(int)));
+        triBuff.SetData(tris);
+        return triBuff;
+    }
+
+    private ComputeBuffer TriangleIndicesToComputeBuffer(Vector3[] verts, int[] tris, out int n)
+    {
+        float[] areas = new float[tris.Length/3];
+        float mina = 1.0f;
+        for(int i = 0; i < areas.Length; i++)
+        {
+            // Use the Heron's formula to calculate the area of triangle.
+            int ii = i * 3;
+            float a = Vector3.Distance(verts[tris[ii]], verts[tris[ii + 1]]);
+            float b = Vector3.Distance(verts[tris[ii]], verts[tris[ii + 2]]);
+            float c = Vector3.Distance(verts[tris[ii + 1]], verts[tris[ii + 2]]);
+            float s = (a + b + c) / 2.0f;
+            areas[i] = Mathf.Sqrt(s*(s-a)*(s-b)*(s-c));
+        }
+        for (int i = 0; i < areas.Length; i++)
+        {
+            if(areas[i] < mina)
+            {
+                mina = areas[i];
+            }
+        }
+        mina *= 10.0f;
+        int[] nums = new int[areas.Length];
+        for(int j = 0; j < nums.Length; j++)
+        {
+            nums[j] = Mathf.CeilToInt(areas[j] / mina);
+        }
+        List<int> trids = new List<int>();
+        for (int k = 0; k < nums.Length; k++)
+        {
+            for (int l = 0; l < nums[k]; l++)
+            {
+                int num = k;
+                trids.Add(num);
+            }
+        }
+
+        int[] tridsa;
+        tridsa = trids.ToArray();
+        n = tridsa.Length;
+        
+        ComputeBuffer tridBuff = new ComputeBuffer(tridsa.Length, Marshal.SizeOf(typeof(int)));
+        tridBuff.SetData(tridsa);
+        return tridBuff;
     }
 
     private ComputeBuffer UVsToComputeBuffer(Vector2[] uvs)
@@ -235,6 +298,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
+        cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);
+        cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLE_INDICES_BUFFER, triangleIndicesBuffer);
 
         // Set vertex position texture for compute shader.
         cs.SetTexture(UPDATE_KERNEL_ID, VERTEX_POSITION_TEX, vertexPosTex);
@@ -283,6 +348,8 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     {
         particleBuffer.Release();
         vertexPositionBuffer.Release();
+        trianglesBuffer.Release();
+        triangleIndicesBuffer.Release();
         uvBuffer.Release();          
     }
 }

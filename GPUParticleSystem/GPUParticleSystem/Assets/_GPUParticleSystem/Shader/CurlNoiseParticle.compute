@@ -29,6 +29,7 @@ cbuffer CB
 	float _AnimLength;          // Animation length in sec.
 	int _AnimTexelSizeY;        // Animation texture pixel size.
 	int _VertexCount;           // The count of emitter mesh vertices.
+	int _TriangleIndicesCount;  // The count of emitter mesh triangle indices.
 	int _NoiseType;
 	float _NoiseAmount;
 	float _Time;                // Current time since level load.
@@ -45,8 +46,10 @@ cbuffer CB
 // Create a readable and writable particles data buffer.
 RWStructuredBuffer<ParticleData> _ParticleBuffer;
 
-// Create a buffer to store static mesh emitter vertex position.
+// Create a buffer to store static mesh emitter vertex position / triangles.
 StructuredBuffer<float3> _VertexPositionBuffer;
+StructuredBuffer<int> _TrianglesBuffer;
+StructuredBuffer<int> _TriangleIndicesBuffer;
 
 // Create a RenderTexture (with enableRandomWrite flag) and set it with cs.SetTexture. 
 //RWTexture2D<float4> _VertexPosTex;
@@ -70,6 +73,24 @@ float3 randomInsideUnitSphere(float2 v)
 	float z = r * cos(th);
 
 	return float3 (x,y,z);
+}
+
+float3 randomPointOnTriangle(float3 a, float3 b, float3 c, int idx)
+{
+	float u = rand(float2(idx, _Time));
+	float v = rand(float2(idx + 2.34253, frac(_Time))) * (1.0 - u);     // u + v <= 1
+	float w = 1.0 - (u + v);
+	float3 ret = u * a + v * b + w * c;
+	return ret;
+}
+
+int3 getTriangleIndices(int idxt)
+{
+	int idxt3 = _TriangleIndicesBuffer[idxt];
+	int idxt3a = _TrianglesBuffer[idxt3 * 3];
+	int idxt3b = idxt3a + 1;
+	int idxt3c = idxt3a + 2;
+	return int3(idxt3a, idxt3b, idxt3c);
 }
 
 float getPerlinNoise(float3 v)
@@ -116,7 +137,7 @@ float3 getNoise(float3 v)
 	float3 noiseFactor = float3(0,0,0);
 	if (_NoiseType == 1)
 	{
-		noiseFactor = GetCurlNoise(v) * _NoiseAmount;
+		noiseFactor = GetCurlNoise(v);
 	}
 	return noiseFactor;
 }
@@ -150,7 +171,7 @@ void CSInit(uint3 Gid  : SV_GroupID,
 	else if (_EmitterType == 2)     // Mesh.
 	{
 		// Get random index in emitter mesh vertices indeies.
-		int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
+		/*int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 		if (_UseVertexAnimation)
 		{
 			// Init the particle position with a random vertex postion in animation.
@@ -161,21 +182,40 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		{
 			// Init the particle position with a random vertex postion.
 			position = _VertexPositionBuffer[idxv] * _EmitterSize;
-		}
+		}*/
 		
-		velocity = float3((rand(float2(idxv * 1.2432, idxv + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxv + _Time, idxv * 0.3421)) * 0.5, (rand(float2(idxv + 4.42312, idxv * 2.2314 * frac(_Time))) * 0.25 - 0.125));
+		// Get random point on surface of emitter mesh.
+		int idxt = floor(rand(float2(idx, 4.231 * frac(_Time))) * _TriangleIndicesCount);
+		int3 ti3 = getTriangleIndices(idxt);
+		if (_UseVertexAnimation)
+		{			
+			float3 p1 = getAnimTexColor(ti3.x);
+			float3 p2 = getAnimTexColor(ti3.y);
+			float3 p3 = getAnimTexColor(ti3.z);
+			position = randomPointOnTriangle(p1,p2,p3,idx) * _EmitterSize;
+			position = getTranslatedPos(position);
+		}
+		else
+		{
+			float3 p1 = _VertexPositionBuffer[ti3.x];
+			float3 p2 = _VertexPositionBuffer[ti3.y];
+			float3 p3 = _VertexPositionBuffer[ti3.z];
+			position = randomPointOnTriangle(p1, p2, p3,idx) * _EmitterSize;
+		}
+
+		velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 	}
 
+	float3 n = getNoise(position * 0.5);
 	if (_NoiseType != 0)
 	{
-		float3 n = getNoise(position * 0.5);
-		velocity += n;
+		velocity += n * _NoiseAmount;
 	}
 	
 	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;
 
-	float lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+	float lifespan = _MinLifeSpan + n * (_MaxLifeSpan - _MinLifeSpan);
 	_ParticleBuffer[idx].lifespan = lifespan;
 	_ParticleBuffer[idx].age = 1.0;
 }
@@ -205,6 +245,9 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Calculate the age.
 	age = (lifespan * age - _TimeStep) / lifespan;
 
+	// Get noise.
+	float3 n = getNoise(position * 0.5);
+
 	if (age <= 0)
 	{
 		// Reset speed, position and lifespan.		
@@ -222,7 +265,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		else if (_EmitterType == 2)     // Mesh.
 		{
 			// Get random index in emitter mesh vertices indeies.
-			int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
+			/*int idxv = floor(rand(float2(idx, 4.231 * frac(_Time))) * _VertexCount);
 			if (_UseVertexAnimation)
 			{
 				// Init the particle position with a random vertex postion in animation.
@@ -233,21 +276,40 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 			{
 				// Init the particle position with a random vertex postion.
 				position = _VertexPositionBuffer[idxv] * _EmitterSize;
+			}*/
+
+			// Get random point on surface of emitter mesh.
+			int idxt = floor(rand(float2(idx, 4.231 * frac(_Time))) * _TriangleIndicesCount);
+			int3 ti3 = getTriangleIndices(idxt);
+			if (_UseVertexAnimation)
+			{
+				float3 p1 = getAnimTexColor(ti3.x);
+				float3 p2 = getAnimTexColor(ti3.y);
+				float3 p3 = getAnimTexColor(ti3.z);
+				position = randomPointOnTriangle(p1, p2, p3,idx) * _EmitterSize;
+				position = getTranslatedPos(position);
+			}
+			else
+			{
+				float3 p1 = _VertexPositionBuffer[ti3.x];
+				float3 p2 = _VertexPositionBuffer[ti3.y];
+				float3 p3 = _VertexPositionBuffer[ti3.z];
+				position = randomPointOnTriangle(p1, p2, p3,idx) * _EmitterSize;
 			}
 			
-			velocity = float3((rand(float2(idxv * 1.2432, idxv + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxv + _Time, idxv * 0.3421)) * 0.5, (rand(float2(idxv + 4.42312, idxv * 2.2314 * frac(_Time))) * 0.25 - 0.125));
+			velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 		}
 
 		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+		//lifespan = _MinLifeSpan + n * (_MaxLifeSpan - _MinLifeSpan);
 		_ParticleBuffer[idx].lifespan = lifespan;
 		age = 1.0;
 	}
 
 	if (_NoiseType != 0)
 	{
-		// Apply noise.
-		float3 n = getNoise(position * 0.5);
-		velocity += n;
+		// Apply noise.		
+		velocity += n * _NoiseAmount;
 	}
 	
 	// Write speed, position and lifespan into buffer.
