@@ -5161,8 +5161,8 @@ MonoBehaviour:
   gravity: {x: 0, y: 10, z: 0}
   speed: 0.0005
   particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}
-  particleSize: 0.005
-  startMaxLifespan: 10
+  particleSize: 0.003
+  startMaxLifespan: 20
   startMinLifespan: 7
   useVertexAnimation: 1
   vertexPosTex: {fileID: 2800000, guid: 56b270b7d297106489aa1a67759464c5, type: 2}
@@ -5276,7 +5276,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.13235295, g: 0.13235295, b: 0.13235295, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0

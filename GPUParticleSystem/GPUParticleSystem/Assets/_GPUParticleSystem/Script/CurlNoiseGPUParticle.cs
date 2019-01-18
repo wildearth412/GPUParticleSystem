@@ -15,8 +15,8 @@ public struct ParticleDataAlpha
 
 public class CurlNoiseGPUParticle : MonoBehaviour
 {
-    // Power 15 of 2.
-    private const int NUM_PARTICLES = 32768;
+    // Power 17 of 2.                            16        15
+    private const int NUM_PARTICLES = 131072; //65536; //32768;
 
     // Num of threads in thread group.
     private const int NUM_THREAD_X = 8;
