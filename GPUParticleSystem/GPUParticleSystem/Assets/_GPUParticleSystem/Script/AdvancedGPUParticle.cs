@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
-using Noise;
+//using Noise;
 
 
 public struct ParticleDataAlpha
@@ -13,10 +13,10 @@ public struct ParticleDataAlpha
     public float age;       // age : 0 ~ 1
 }
 
-public class CurlNoiseGPUParticle : MonoBehaviour
+public class AdvancedGPUParticle : MonoBehaviour
 {
-    // Power 17 of 2.                            16        15
-    private const int NUM_PARTICLES = 131072; //65536; //32768;
+    // Power 18 of 2.                    18       17         16        15
+    private const int NUM_PARTICLES = 262144; //131072; //65536; //32768;
 
     // Num of threads in thread group.
     private const int NUM_THREAD_X = 8;
@@ -66,6 +66,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
 
     public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
     public float noiseAmount = 1.0f;
+    public float noiseScale = 1.0f;
 
     public Camera renderCam;
 
@@ -76,28 +77,28 @@ public class CurlNoiseGPUParticle : MonoBehaviour
     private ComputeBuffer uvBuffer;                 // For mesh emitter UV.
     private Material particleMat;
 
-    private CurlNoise cn = new CurlNoise();
+    //private CurlNoise cn = new CurlNoise();
 
-    private Vector3 GetNoise(Vector3 v)
-    {
-        int ntype = (int)noise;
-        Vector3 noiseFactor = Vector3.one;
-        switch (ntype)
-        {
-            case 0:             
-                break;
-            case 1:
-                noiseFactor = cn.GetCurlNoise(v) * noiseAmount;
-                break;
-            case 2:
+    //private Vector3 GetNoise(Vector3 v)
+    //{
+    //    int ntype = (int)noise;
+    //    Vector3 noiseFactor = Vector3.one;
+    //    switch (ntype)
+    //    {
+    //        case 0:             
+    //            break;
+    //        case 1:
+    //            noiseFactor = cn.GetCurlNoise(v) * noiseAmount;
+    //            break;
+    //        case 2:
 
-                break;
-            case 3:
+    //            break;
+    //        case 3:
 
-                break;
-        }
-        return noiseFactor;
-    }
+    //            break;
+    //    }
+    //    return noiseFactor;
+    //}
 
     private void Start()
     {
@@ -186,6 +187,7 @@ public class CurlNoiseGPUParticle : MonoBehaviour
         int ntype = (int)noise;
         particleComputeShader.SetInt("_NoiseType", ntype);
         particleComputeShader.SetFloat("_NoiseAmount", noiseAmount);
+        particleComputeShader.SetFloat("_NoiseScale", noiseScale);
         particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
         particleComputeShader.SetFloat("_TimeStep", Time.deltaTime);
         startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;

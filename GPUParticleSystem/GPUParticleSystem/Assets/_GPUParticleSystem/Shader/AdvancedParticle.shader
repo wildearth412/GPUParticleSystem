@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Hidden/CurlNoiseParticleRender"
+Shader "Hidden/AdvancedParticle"
 {
 	//Properties
 	//{
@@ -25,6 +25,7 @@ Shader "Hidden/CurlNoiseParticleRender"
 		float3 position : TEXCOORD0;
 		float4 color : COLOR;
 		float size : float;
+		float3 dir : float3;
 	};
 
 	// Struct from GeometryShader to FragmentShader.
@@ -68,6 +69,7 @@ Shader "Hidden/CurlNoiseParticleRender"
 	{
 		v2g o = (v2g)0;
 		o.size = 1.0 - (1.0 - _ParticleBuffer[id].age) * 0.5;
+		o.dir = normalize(_ParticleBuffer[id].velocity) * 50.0;
 		// Particles position.
 		o.position = _ParticleBuffer[id].position;
 		// Particles color.
@@ -88,6 +90,10 @@ Shader "Hidden/CurlNoiseParticleRender"
 		[unroll]
 		for (int i = 0; i < 4; i++)
 		{
+			//float3 dirg = float3(1.0,1.0,1.0);
+			//if (i == 1 || i == 2) { dirg = g_positions[i] + In[0].dir.yzx; }
+			//else { dirg = g_positions[i]; }
+			//float3 position = dirg * _ParticleSize * In[0].size;
 			float3 position = g_positions[i] * _ParticleSize * In[0].size;
 			position = mul(_InvViewMatrix, position) + In[0].position;
 			o.position = UnityObjectToClipPos(float4(position,1.0));
@@ -105,6 +111,8 @@ Shader "Hidden/CurlNoiseParticleRender"
 	// Fragment Shader.
 	fixed4 frag(g2f i) : SV_Target
 	{
+		//float4 c = float4(i.texcoord.x,0,i.texcoord.y,1.0);
+		//return c;
 		return tex2D(_MainTex, i.texcoord.xy) * i.color;
 	}
 	ENDCG

@@ -204,6 +204,75 @@ Transform:
   m_Father: {fileID: 233463096}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &94155822
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 94155826}
+  - component: {fileID: 94155825}
+  - component: {fileID: 94155823}
+  m_Layer: 0
+  m_Name: Quad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!23 &94155823
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 94155822}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a6e8b5431c6d90d44a9a850877c9ac7f, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &94155825
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 94155822}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &94155826
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 94155822}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 11.56, y: 0.738, z: 0.08}
+  m_LocalScale: {x: 55.188145, y: 55.18818, z: 55.18818}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &100946439
 GameObject:
   m_ObjectHideFlags: 0
@@ -5158,11 +5227,11 @@ MonoBehaviour:
   particleComputeShader: {fileID: 7200000, guid: 9b96f243f5ff31b428f1b949890b8901,
     type: 3}
   particleShader: {fileID: 4800000, guid: df05bcaa7419b8e469fbad359a193ca5, type: 3}
-  gravity: {x: 0, y: 10, z: 0}
-  speed: 0.0005
+  gravity: {x: 0, y: 1, z: -1}
+  speed: 0.68
   particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}
   particleSize: 0.003
-  startMaxLifespan: 20
+  startMaxLifespan: 9
   startMinLifespan: 7
   useVertexAnimation: 1
   vertexPosTex: {fileID: 2800000, guid: 56b270b7d297106489aa1a67759464c5, type: 2}
@@ -5172,8 +5241,9 @@ MonoBehaviour:
   emitter: 2
   emitterSize: 0.5
   emitterMesh: {fileID: 4300002, guid: a85d92b72304a79449904f3b49e3d5ea, type: 3}
-  noise: 1
-  noiseAmount: 6.66
+  noise: 2
+  noiseAmount: 0.03
+  noiseScale: 5.33
   renderCam: {fileID: 1987344441}
 --- !u!23 &1954813116
 MeshRenderer:
