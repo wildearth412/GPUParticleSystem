@@ -67,6 +67,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
     public float noiseAmount = 1.0f;
     public float noiseScale = 1.0f;
+    public Vector3 noiseOffset = Vector3.zero;
 
     public Camera renderCam;
 
@@ -188,6 +189,7 @@ public class AdvancedGPUParticle : MonoBehaviour
         particleComputeShader.SetInt("_NoiseType", ntype);
         particleComputeShader.SetFloat("_NoiseAmount", noiseAmount);
         particleComputeShader.SetFloat("_NoiseScale", noiseScale);
+        particleComputeShader.SetVector("_NoiseOffset", noiseOffset);
         particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
         particleComputeShader.SetFloat("_TimeStep", Time.deltaTime);
         startMinLifespan = startMinLifespan <= 0 ? 0.1f : startMinLifespan;

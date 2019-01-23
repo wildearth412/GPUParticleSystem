@@ -33,6 +33,7 @@ cbuffer CB
 	int _NoiseType;
 	float _NoiseAmount;
 	float _NoiseScale;
+	float3 _NoiseOffset;
 	float _Time;                // Current time since level load.
 	float _TimeStep;            // Current delta time.
 	float _MaxLifeSpan;
@@ -203,11 +204,11 @@ void CSInit(uint3 Gid  : SV_GroupID,
 	float3 n = float3(0,0,0);
 	if (_NoiseType == 1)
 	{
-		n = getCurlNoise(position * _NoiseScale);
+		n = getCurlNoise(position * _NoiseScale + _NoiseOffset * _Time);
 	}
 	else if (_NoiseType == 2)
 	{
-		n = getSimplexNoise(position * _NoiseScale);
+		n = getSimplexNoise(position * _NoiseScale + _NoiseOffset * _Time);
 	}
 	
 	velocity += n * _NoiseAmount;
@@ -251,11 +252,11 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	float3 n = float3(0, 0, 0);
 	if (_NoiseType == 1)
 	{
-		n = getCurlNoise(position * _NoiseScale);
+		n = getCurlNoise(position * _NoiseScale + _NoiseOffset * _Time);
 	}
 	else if (_NoiseType == 2)
 	{
-		n = getSimplexNoise(position * _NoiseScale);
+		n = getSimplexNoise(position * _NoiseScale +_NoiseOffset * _Time);
 	}
 
 	if (age <= 0)

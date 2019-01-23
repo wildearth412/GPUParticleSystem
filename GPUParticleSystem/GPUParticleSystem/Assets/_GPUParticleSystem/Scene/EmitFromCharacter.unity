@@ -5244,6 +5244,7 @@ MonoBehaviour:
   noise: 2
   noiseAmount: 0.03
   noiseScale: 5.33
+  noiseOffset: {x: 0, y: 0.1, z: -0.58}
   renderCam: {fileID: 1987344441}
 --- !u!23 &1954813116
 MeshRenderer:
