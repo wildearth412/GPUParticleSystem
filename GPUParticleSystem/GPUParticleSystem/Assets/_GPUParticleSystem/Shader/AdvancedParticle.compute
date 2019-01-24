@@ -20,6 +20,15 @@ struct ParticleData
 	float age;      // age : 0 ~ 1
 };
 
+// Struct of noise data.
+struct NoiseData
+{
+	int noiseType;
+	float noiseAmount;
+	float noiseScale;
+	float3 noiseOffset;
+};
+
 // Constant value buffer.
 cbuffer CB
 {
@@ -30,10 +39,11 @@ cbuffer CB
 	int _AnimTexelSizeY;        // Animation texture pixel size.
 	int _VertexCount;           // The count of emitter mesh vertices.
 	int _TriangleIndicesCount;  // The count of emitter mesh triangle indices.
-	int _NoiseType;
+	int _NoiseCount;
+	/*int _NoiseType;
 	float _NoiseAmount;
 	float _NoiseScale;
-	float3 _NoiseOffset;
+	float3 _NoiseOffset;*/
 	float _Time;                // Current time since level load.
 	float _TimeStep;            // Current delta time.
 	float _MaxLifeSpan;
@@ -47,6 +57,9 @@ cbuffer CB
 
 // Create a readable and writable particles data buffer.
 RWStructuredBuffer<ParticleData> _ParticleBuffer;
+
+// Create a buffer to store noise information.
+RWStructuredBuffer<NoiseData> _NoiseBuffer;
 
 // Create a buffer to store static mesh emitter vertex position / triangles.
 StructuredBuffer<float3> _VertexPositionBuffer;
@@ -150,6 +163,25 @@ float3 getSimplexNoise(float3 v)
 	return noise;
 }
 
+float3 selectNoise(NoiseData n, float3 pos)
+{
+	int type = n.noiseType;
+	float3 ret = float3(0, 0, 0);
+	if (type == 0)
+	{
+		return ret;
+	}
+	else if (type == 1)
+	{
+		ret = getCurlNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+	}
+	else if (type == 2)
+	{
+		ret = getSimplexNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+	}
+	return ret;
+}
+
 //
 // ----------- Kernel Functions. -----------
 //
@@ -201,18 +233,15 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 2.0 - 1.0), (rand(float2(idxt + _Time, idxt * 0.3421)) * 2.0 - 1.0), (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
 
-	float3 n = float3(0,0,0);
-	if (_NoiseType == 1)
+	// Get noise.
+	float3 n = float3(0, 0, 0);
+	for (int i = 0; i < _NoiseCount; i++)
 	{
-		n = getCurlNoise(position * _NoiseScale + _NoiseOffset * _Time);
-	}
-	else if (_NoiseType == 2)
-	{
-		n = getSimplexNoise(position * _NoiseScale + _NoiseOffset * _Time);
+		n += selectNoise(_NoiseBuffer[i],position);
 	}
 	
-	velocity += n * _NoiseAmount;
-	//velocity = n * _NoiseAmount;
+	velocity += n;
+	//velocity = n;
 	
 	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;
@@ -249,14 +278,10 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	age = (lifespan * age - _TimeStep) / lifespan;
 
 	// Get noise.
-	float3 n = float3(0, 0, 0);
-	if (_NoiseType == 1)
+	float3 n = float3(0,0,0);
+	for (int i = 0; i < _NoiseCount; i++)
 	{
-		n = getCurlNoise(position * _NoiseScale + _NoiseOffset * _Time);
-	}
-	else if (_NoiseType == 2)
-	{
-		n = getSimplexNoise(position * _NoiseScale +_NoiseOffset * _Time);
+		n += selectNoise(_NoiseBuffer[i],position);
 	}
 
 	if (age <= 0)
@@ -307,8 +332,8 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	}
 
 	// Apply noise.		
-	velocity += n * _NoiseAmount;
-	//velocity = n * _NoiseAmount;
+	velocity += n;
+	//velocity = n;
 	
 	// Write speed, position and lifespan into buffer.
 	_ParticleBuffer[idx].velocity = velocity * _Speed;

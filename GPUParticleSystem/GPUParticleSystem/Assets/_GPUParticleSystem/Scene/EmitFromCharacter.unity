@@ -5241,10 +5241,15 @@ MonoBehaviour:
   emitter: 2
   emitterSize: 0.5
   emitterMesh: {fileID: 4300002, guid: a85d92b72304a79449904f3b49e3d5ea, type: 3}
-  noise: 2
-  noiseAmount: 0.03
-  noiseScale: 5.33
-  noiseOffset: {x: 0, y: 0.1, z: -0.58}
+  noiseList:
+  - noiseType: 1
+    noiseAmount: 0.03
+    noiseScale: 1
+    noiseOffset: {x: 0, y: 0, z: 0}
+  - noiseType: 2
+    noiseAmount: 0.03
+    noiseScale: 5.33
+    noiseOffset: {x: 0, y: 0.1, z: -0.3}
   renderCam: {fileID: 1987344441}
 --- !u!23 &1954813116
 MeshRenderer:
