@@ -38,11 +38,11 @@
 	{
 		float4 col;
 		
-		/*float cx = curlX(i.wpos, 0.0009765625);
+		float cx = curlX(i.wpos, 0.0009765625);
 		float cy = curlY(i.wpos, 0.0009765625);
-		float cz = curlZ(i.wpos, 0.0009765625);*/
-		//col.rgb = float3(cx,cy,cz);
-		col.rgb = snoise3D(i.wpos * 0.75);
+		float cz = curlZ(i.wpos, 0.0009765625);
+		col.rgb = float3(cx,cy,cz);
+		//col.rgb = snoise3D(i.wpos * 0.75);
 		//col.rgb = float3(1.0,1.0,1.0);
 		col.a = 1.0;
 		return col;

@@ -78,28 +78,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     private ComputeBuffer uvBuffer;                 // For mesh emitter UV.
     private Material particleMat;
 
-    //private CurlNoise cn = new CurlNoise();
-
-    //private Vector3 GetNoise(Vector3 v)
-    //{
-    //    int ntype = (int)noise;
-    //    Vector3 noiseFactor = Vector3.one;
-    //    switch (ntype)
-    //    {
-    //        case 0:             
-    //            break;
-    //        case 1:
-    //            noiseFactor = cn.GetCurlNoise(v) * noiseAmount;
-    //            break;
-    //        case 2:
-
-    //            break;
-    //        case 3:
-
-    //            break;
-    //    }
-    //    return noiseFactor;
-    //}
+    private Vector3[] debugPos = new Vector3[3000];
 
     private void Start()
     {
@@ -219,8 +198,7 @@ public class AdvancedGPUParticle : MonoBehaviour
 
     private ComputeBuffer TriangleIndicesToComputeBuffer(Vector3[] verts, int[] tris, out int n)
     {
-        float[] areas = new float[tris.Length/3];
-        float mina = 1.0f;
+        float[] areas = new float[tris.Length/3];       
         for(int i = 0; i < areas.Length; i++)
         {
             // Use the Heron's formula to calculate the area of triangle.
@@ -231,7 +209,8 @@ public class AdvancedGPUParticle : MonoBehaviour
             float s = (a + b + c) / 2.0f;
             areas[i] = Mathf.Sqrt(s*(s-a)*(s-b)*(s-c));
         }
-        for (int i = 0; i < areas.Length; i++)
+        float mina = areas[0];
+        for (int i = 1; i < areas.Length; i++)
         {
             if(areas[i] < mina)
             {
@@ -260,6 +239,10 @@ public class AdvancedGPUParticle : MonoBehaviour
         
         ComputeBuffer tridBuff = new ComputeBuffer(tridsa.Length, Marshal.SizeOf(typeof(int)));
         tridBuff.SetData(tridsa);
+
+        // For sampling debug.
+        debugPos = SamplingDebug(verts,tris, tridsa);
+
         return tridBuff;
     }
 
@@ -355,5 +338,37 @@ public class AdvancedGPUParticle : MonoBehaviour
         trianglesBuffer.Release();
         triangleIndicesBuffer.Release();
         uvBuffer.Release();          
+    }
+
+    private Vector3[] SamplingDebug(Vector3[] verts, int[] tris, int[] idcs)
+    {
+        Vector3[] pos = new Vector3[3000];
+        int count = idcs.Length;
+        for (int i = 0; i < 3000; i++)
+        {           
+            int r = Mathf.FloorToInt( count * Random.value );
+            r = idcs[r];
+            Vector3 p1 = verts[tris[r * 3]];
+            Vector3 p2 = verts[tris[r * 3 + 1]];
+            Vector3 p3 = verts[tris[r * 3 + 2]];
+
+            float u = Random.value;
+            float v = Random.value * (1.0f - u);
+            float w = 1.0f - (u + v);
+            Vector3 rp = u * p1 + v * p2 + w * p3;
+
+            pos[i] = rp;
+        }
+        return pos;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 size = Vector3.one * 0.009f;
+        for (int i = 0; i < debugPos.Length; i++)
+        {
+            Gizmos.DrawCube(debugPos[i],size);
+        }
     }
 }
