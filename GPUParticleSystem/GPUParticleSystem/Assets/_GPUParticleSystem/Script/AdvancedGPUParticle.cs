@@ -21,6 +21,15 @@ public struct NoiseData
     public Vector3 noiseOffset;
 }
 
+[System.Serializable]
+public class NoiseDataClass
+{
+    public GPUParticleSetting.NoiseType noiseType;
+    public float noiseAmount;
+    public float noiseScale;
+    public Vector3 noiseOffset;
+}
+
 public class AdvancedGPUParticle : MonoBehaviour
 {
     // Power 18 of 2.                    18       17         16        15
@@ -78,6 +87,8 @@ public class AdvancedGPUParticle : MonoBehaviour
     //public float noiseScale = 1.0f;
     //public Vector3 noiseOffset = Vector3.zero;
 
+    public List<NoiseDataClass> noises = new List<NoiseDataClass>();
+    private NoiseData[] noisesData;
     public List<NoiseData> noiseList = new List<NoiseData>();
 
     public Camera renderCam;

@@ -219,7 +219,6 @@ void CSInit(uint3 Gid  : SV_GroupID,
 			float4 p2 = getAnimTexColor(ti3.y);
 			float4 p3 = getAnimTexColor(ti3.z);
 			position = randomPointOnTriangle(p1.xyz,p2.xyz,p3.xyz,idx) * _EmitterSize;
-			position = getTranslatedPos(position);
 		}
 		else
 		{
@@ -232,6 +231,9 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 		//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 2.0 - 1.0), (rand(float2(idxt + _Time, idxt * 0.3421)) * 2.0 - 1.0), (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
+
+	// Apply total object transform.
+	position = getTranslatedPos(position);
 
 	// Get noise.
 	float3 n = float3(0, 0, 0);
@@ -277,13 +279,6 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Calculate the age.
 	age = (lifespan * age - _TimeStep) / lifespan;
 
-	// Get noise.
-	float3 n = float3(0,0,0);
-	for (int i = 0; i < _NoiseCount; i++)
-	{
-		n += selectNoise(_NoiseBuffer[i],position);
-	}
-
 	if (age <= 0)
 	{
 		// Reset speed, position and lifespan.		
@@ -323,12 +318,16 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 			//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 2.0 - 1.0), (rand(float2(idxt + _Time, idxt * 0.3421)) * 2.0 - 1.0), (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 			//velocity = float3(0,1.0,0);
 		}
+	}
 
-		//lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
-		lifespan = _MinLifeSpan + clamp(abs(n.x),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
-		//lifespan = 3.0;
-		_ParticleBuffer[idx].lifespan = lifespan;
-		age = 1.0;
+	// Apply total object transform.
+	position = getTranslatedPos(position);
+
+	// Get noise.
+	float3 n = float3(0, 0, 0);
+	for (int i = 0; i < _NoiseCount; i++)
+	{
+		n += selectNoise(_NoiseBuffer[i], position);
 	}
 
 	// Apply noise.		
@@ -338,6 +337,15 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Write speed, position and lifespan into buffer.
 	_ParticleBuffer[idx].velocity = velocity * _Speed;
 	_ParticleBuffer[idx].position = position;
+
+	if (age <= 0)
+	{
+		//lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+		lifespan = _MinLifeSpan + clamp(abs(n.x), 0, 1.0) * (_MaxLifeSpan - _MinLifeSpan);
+		//lifespan = 3.0;
+		_ParticleBuffer[idx].lifespan = lifespan;
+		age = 1.0;
+	}
 	_ParticleBuffer[idx].age = age;
 
 	//Result[id.xy] = float4(DTid.x & DTid.y, (DTid.x & 15)/15.0, (DTid.y & 15)/15.0, 0.0);
