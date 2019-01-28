@@ -50,6 +50,7 @@ cbuffer CB
 	float _MaxLifeSpan;
 	float _MinLifeSpan;
 	float3 _Gravity;
+	float _Drag;
 	float _Speed;
 	float3 _CharPosition;       // The position of emitter mesh as character.
 	float3 _CharDirection;      // The direction of emitter mesh as character.
@@ -300,8 +301,10 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 
 	// Calculate the acceleration.
 	float3 acceleration = _Gravity.xyz;
-	// Calculate the speed.
+	// Calculate the speed resulting from gravity.
 	velocity += acceleration * _TimeStep;
+	// Calculate the speed resulting from drag.
+	velocity = velocity - velocity * _Drag;
 	// Calculate the postion.
 	position += velocity * _TimeStep;
 	// Calculate the age.
