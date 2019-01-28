@@ -59,7 +59,7 @@ cbuffer CB
 RWStructuredBuffer<ParticleData> _ParticleBuffer;
 
 // Create a buffer to store noise information.
-RWStructuredBuffer<NoiseData> _NoiseBuffer;
+StructuredBuffer<NoiseData> _NoiseBuffer;
 
 // Create a buffer to store static mesh emitter vertex position / triangles.
 StructuredBuffer<float3> _VertexPositionBuffer;
@@ -232,9 +232,6 @@ void CSInit(uint3 Gid  : SV_GroupID,
 		//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 2.0 - 1.0), (rand(float2(idxt + _Time, idxt * 0.3421)) * 2.0 - 1.0), (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 	}
 
-	// Apply total object transform.
-	position = getTranslatedPos(position);
-
 	// Get noise.
 	float3 n = float3(0, 0, 0);
 	for (int i = 0; i < _NoiseCount; i++)
@@ -245,11 +242,15 @@ void CSInit(uint3 Gid  : SV_GroupID,
 	velocity += n;
 	//velocity = n;
 	
+	// Apply total object transform.
+	position = getTranslatedPos(position);
+
 	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;
 
-	//float lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
-	float lifespan = _MinLifeSpan + clamp(abs(n.x),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
+	float lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+	//float lifespan = _MinLifeSpan + clamp(abs(n.x),0,1.0) * (_MaxLifeSpan - _MinLifeSpan);
+	//float lifespan = _MinLifeSpan + clamp(sqrt(dot(n, n)), 0, 1.0) * (_MaxLifeSpan - _MinLifeSpan);
 	_ParticleBuffer[idx].lifespan = lifespan;
 	_ParticleBuffer[idx].age = 1.0;
 }
@@ -285,12 +286,14 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 		if (_EmitterType == 0)          // Plane.
 		{
 			position = float3( (rand(float2(idx * 1.41325, idx + _Time)) * 2.0 - 1.0), 0, (rand(float2(idx + 0.24312, idx * frac(_Time))) * 2.0 - 1.0) ) * _EmitterSize;
+			position = getTranslatedPos(position);
 			velocity = float3((rand(float2(idx * 1.2432, idx + frac(_Time)))) * 2.0 - 1.0, 1.0 - rand(float2(idx + _Time, idx * 0.3421)) * 0.5, (rand(float2(idx + 4.42312, idx * 2.2314 * frac(_Time)))) * 2.0 - 1.0);
 		}
 		else if (_EmitterType == 1)     // Sphere.
 		{
 			float3 rnd = randomInsideUnitSphere(float2(idx, 0));			
 			position = rnd * _EmitterSize;
+			position = getTranslatedPos(position);
 			velocity = rnd;
 		}
 		else if (_EmitterType == 2)     // Mesh.
@@ -312,6 +315,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 				float3 p2 = _VertexPositionBuffer[ti3.y];
 				float3 p3 = _VertexPositionBuffer[ti3.z];
 				position = randomPointOnTriangle(p1, p2, p3,idx) * _EmitterSize;
+				position = getTranslatedPos(position);
 			}
 			
 			velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
@@ -319,9 +323,6 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 			//velocity = float3(0,1.0,0);
 		}
 	}
-
-	// Apply total object transform.
-	position = getTranslatedPos(position);
 
 	// Get noise.
 	float3 n = float3(0, 0, 0);
@@ -333,15 +334,16 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Apply noise.		
 	velocity += n;
 	//velocity = n;
-	
+
 	// Write speed, position and lifespan into buffer.
 	_ParticleBuffer[idx].velocity = velocity * _Speed;
 	_ParticleBuffer[idx].position = position;
 
 	if (age <= 0)
 	{
-		//lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
-		lifespan = _MinLifeSpan + clamp(abs(n.x), 0, 1.0) * (_MaxLifeSpan - _MinLifeSpan);
+		lifespan = _MinLifeSpan + rand(float2(idx, 0)) * (_MaxLifeSpan - _MinLifeSpan);
+		//lifespan = _MinLifeSpan + clamp(abs(n.x), 0, 1.0) * (_MaxLifeSpan - _MinLifeSpan);
+		//lifespan = _MinLifeSpan + clamp(sqrt(dot(n,n)), 0, 1.0) * (_MaxLifeSpan - _MinLifeSpan);
 		//lifespan = 3.0;
 		_ParticleBuffer[idx].lifespan = lifespan;
 		age = 1.0;

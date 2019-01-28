@@ -89,7 +89,7 @@ public class AdvancedGPUParticle : MonoBehaviour
 
     public List<NoiseDataClass> noises = new List<NoiseDataClass>();
     private NoiseData[] noisesData;
-    public List<NoiseData> noiseList = new List<NoiseData>();
+    //public List<NoiseData> noiseList = new List<NoiseData>();
 
     public Camera renderCam;
 
@@ -189,10 +189,10 @@ public class AdvancedGPUParticle : MonoBehaviour
         particleComputeShader.SetFloat("_EmitterSize", emitterSize);
         particleComputeShader.SetBool("_UseVertexAnimation", useVertexAnimation);
 
-        if(noiseList.Count > 0)
+        if(noises.Count > 0)
         {
-            noiseBuffer = NoiseToComputeBuffer(noiseList);
-            particleComputeShader.SetInt("_NoiseCount",noiseList.Count);
+            noiseBuffer = NoiseToComputeBuffer(noises);
+            particleComputeShader.SetInt("_NoiseCount",noises.Count);
         }
         
         particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
@@ -279,16 +279,16 @@ public class AdvancedGPUParticle : MonoBehaviour
         return uvBuff;
     }
 
-    private ComputeBuffer NoiseToComputeBuffer(List<NoiseData> list)
+    private ComputeBuffer NoiseToComputeBuffer(List<NoiseDataClass> list)
     {
         ComputeBuffer nBuffer = new ComputeBuffer(list.Count, Marshal.SizeOf(typeof(NoiseData)));
         var nData = new NoiseData[list.Count];
         for (int i = 0; i < nData.Length; i++)
         {
-            nData[i].noiseType = noiseList[i].noiseType;
-            nData[i].noiseAmount = noiseList[i].noiseAmount;
-            nData[i].noiseScale = noiseList[i].noiseScale;
-            nData[i].noiseOffset = noiseList[i].noiseOffset;
+            nData[i].noiseType = noises[i].noiseType;
+            nData[i].noiseAmount = noises[i].noiseAmount;
+            nData[i].noiseScale = noises[i].noiseScale;
+            nData[i].noiseOffset = noises[i].noiseOffset;
         }
         nBuffer.SetData(nData);
         nData = null;
