@@ -8,7 +8,8 @@
 
 #define PI 3.14159265
 
-#include "Assets/_GPUParticleSystem/Shader/Lib/Noise.cginc"
+#include "Assets/_GPUParticleSystem/Shader/Lib/SimplexNoise.cginc"
+#include "Assets/_GPUParticleSystem/Shader/Lib/ClassicNoise3D.cginc"
 //#include "Assets/_GPUParticleSystem/Shader/Lib/AnimTexture.cginc"
 
 // Struct of particle data.

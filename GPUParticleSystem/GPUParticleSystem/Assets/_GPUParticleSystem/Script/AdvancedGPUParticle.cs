@@ -157,11 +157,15 @@ public class AdvancedGPUParticle : MonoBehaviour
         // Get the kernel ID.
         INIT_KERNEL_ID = particleComputeShader.FindKernel(INIT_KERNEL_NAME);
         UPDATE_KERNEL_ID = particleComputeShader.FindKernel(UPDATE_KERNEL_NAME);
+        
+        // Max 10 noise buffers created.
+        noiseBuffer = new ComputeBuffer(10, Marshal.SizeOf(typeof(NoiseData)));
 
         SetupComputeShaderParameters();
         particleComputeShader.SetFloat("_AnimLength", animeLength);
         particleComputeShader.SetInt("_AnimTexelSizeY", animeTexSizeY);
         particleComputeShader.SetBuffer(INIT_KERNEL_ID, NOISE_BUFFER, noiseBuffer);
+        //noiseBuffer.Release();
 
         if (emitterMesh != null)
         {
@@ -191,8 +195,9 @@ public class AdvancedGPUParticle : MonoBehaviour
 
         if(noises.Count > 0)
         {
-            noiseBuffer = NoiseToComputeBuffer(noises);
-            particleComputeShader.SetInt("_NoiseCount",noises.Count);
+            NoiseToComputeBuffer(noises);
+            int nn = noises.Count > 10 ? 10 : noises.Count;
+            particleComputeShader.SetInt("_NoiseCount",nn);
         }
         
         particleComputeShader.SetFloat("_Time", Time.timeSinceLevelLoad);
@@ -279,20 +284,20 @@ public class AdvancedGPUParticle : MonoBehaviour
         return uvBuff;
     }
 
-    private ComputeBuffer NoiseToComputeBuffer(List<NoiseDataClass> list)
+    private void NoiseToComputeBuffer(List<NoiseDataClass> list)
     {
-        ComputeBuffer nBuffer = new ComputeBuffer(list.Count, Marshal.SizeOf(typeof(NoiseData)));
         var nData = new NoiseData[list.Count];
         for (int i = 0; i < nData.Length; i++)
         {
+            if (i > 9) { break; }
             nData[i].noiseType = noises[i].noiseType;
             nData[i].noiseAmount = noises[i].noiseAmount;
             nData[i].noiseScale = noises[i].noiseScale;
             nData[i].noiseOffset = noises[i].noiseOffset;
         }
-        nBuffer.SetData(nData);
+        noiseBuffer.SetData(nData);
         nData = null;
-        return nBuffer;
+        //return nBuffer;
     }
 
     private void Update()
@@ -330,6 +335,7 @@ public class AdvancedGPUParticle : MonoBehaviour
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLE_INDICES_BUFFER, triangleIndicesBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, NOISE_BUFFER, noiseBuffer);
+        //noiseBuffer.Release();
 
         // Set vertex position texture for compute shader.
         cs.SetTexture(UPDATE_KERNEL_ID, VERTEX_POSITION_TEX, vertexPosTex);
