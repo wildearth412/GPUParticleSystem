@@ -164,6 +164,24 @@ float3 getSimplexNoise(float3 v)
 	return noise;
 }
 
+float3 getClassicPerlinNoise(float3 v)
+{
+	float n1 = cnoise(v);
+	float n2 = cnoise(v + float3(17.23, 33.37, 54.68));
+	float n3 = cnoise(v + float3(43.65, 0.15, 78.41));
+	return float3(n1,n2,n3);
+}
+
+float3 getPeriodicPerlinNoise(float3 v)
+{
+	//float3 period = randomInsideUnitSphere(v.yx) * 0.01;
+	float3 period = float3(3.0,3.0,3.0);
+	float n1 = pnoise(v, period);
+	float n2 = pnoise(v + float3(17.23, 33.37, 54.68), period);
+	float n3 = pnoise(v + float3(43.65, 0.15, 78.41), period);
+	return float3(n1, n2, n3);
+}
+
 float3 selectNoise(NoiseData n, float3 pos)
 {
 	int type = n.noiseType;
@@ -179,6 +197,14 @@ float3 selectNoise(NoiseData n, float3 pos)
 	else if (type == 2)
 	{
 		ret = getSimplexNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+	}
+	else if (type == 3)
+	{
+		ret = getClassicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+	}
+	else if (type == 4)
+	{
+		ret = getPeriodicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
 	return ret;
 }

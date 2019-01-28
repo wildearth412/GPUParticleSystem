@@ -16,6 +16,7 @@ public static class GPUParticleSetting
         None = 0,
         CurlNoise = 1,
         SimplexNoise = 2,
-        PerlinNoise = 3
+        ClassicPerlinNoise = 3,
+        PeriodicPerlinNoise = 4
     }
 }
