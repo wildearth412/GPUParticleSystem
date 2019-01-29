@@ -5228,6 +5228,7 @@ MonoBehaviour:
     type: 3}
   particleShader: {fileID: 4800000, guid: df05bcaa7419b8e469fbad359a193ca5, type: 3}
   gravity: {x: 0, y: 1, z: -1}
+  drag: -0.03
   speed: 0.68
   particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}
   particleSize: 0.002
@@ -5246,8 +5247,8 @@ MonoBehaviour:
     noiseAmount: 0.03
     noiseScale: 5.33
     noiseOffset: {x: 0, y: 0.1, z: -0.3}
-  - noiseType: 0
-    noiseAmount: 0.015
+  - noiseType: 1
+    noiseAmount: 0.005
     noiseScale: 0.5
     noiseOffset: {x: 0, y: 0.1, z: -0.3}
   renderCam: {fileID: 1987344441}
