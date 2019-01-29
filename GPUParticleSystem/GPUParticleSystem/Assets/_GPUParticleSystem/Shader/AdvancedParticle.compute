@@ -8,8 +8,8 @@
 
 #define PI 3.14159265
 
-#include "Assets/_GPUParticleSystem/Shader/Lib/SimplexNoise.cginc"
-#include "Assets/_GPUParticleSystem/Shader/Lib/ClassicNoise3D.cginc"
+#include "Lib/SimplexNoise.cginc"
+#include "Lib/ClassicNoise3D.cginc"
 //#include "Assets/_GPUParticleSystem/Shader/Lib/AnimTexture.cginc"
 
 // Struct of particle data.
@@ -191,21 +191,21 @@ float3 selectNoise(NoiseData n, float3 pos)
 	{
 		return ret;
 	}
-	else if (type == 1)
+	if (type == 1)
 	{
-		ret = getCurlNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+		return getCurlNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
-	else if (type == 2)
+	if (type == 2)
 	{
-		ret = getSimplexNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+		return getSimplexNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
-	else if (type == 3)
+	if (type == 3)
 	{
-		ret = getClassicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+		return getClassicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
-	else if (type == 4)
+	if (type == 4)
 	{
-		ret = getPeriodicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
+		return getPeriodicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
 	return ret;
 }
