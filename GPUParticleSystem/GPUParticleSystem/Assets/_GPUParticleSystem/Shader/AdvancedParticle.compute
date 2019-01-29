@@ -51,6 +51,7 @@ cbuffer CB
 	float _MinLifeSpan;
 	float3 _Gravity;
 	float _Drag;
+	float _Vorticity;           // Fluid looks.
 	float _Speed;
 	float3 _CharPosition;       // The position of emitter mesh as character.
 	float3 _CharDirection;      // The direction of emitter mesh as character.
@@ -149,6 +150,7 @@ float4 getAnimTexColor(int idx)
 	return _VertexPosTex[float2(u, v)];
 }
 
+// Noise.
 float3 getCurlNoise(float3 v)
 {
 	float3 noise = float3(0,0,0);
@@ -208,6 +210,32 @@ float3 selectNoise(NoiseData n, float3 pos)
 		return getPeriodicPerlinNoise(pos * n.noiseScale + n.noiseOffset * _Time) * n.noiseAmount;
 	}
 	return ret;
+}
+
+// Fluid Simulation.
+float3 vorticity(float3 v)
+{
+	return getCurlNoise(v);
+}
+
+float3 confinement(float3 v, float d)
+{
+	float omegaL = length(vorticity(v + float3(-d, 0, 0)));
+	float omegaR = length(vorticity(v + float3(d, 0, 0)));
+
+	float omegaB = length(vorticity(v + float3(0, -d, 0)));
+	float omegaT = length(vorticity(v + float3(0, d, 0)));
+
+	float omegaD = length(vorticity(v + float3(0, 0, d)));
+	float omegaU = length(vorticity(v + float3(0, 0, -d)));
+
+	float3 omega = vorticity(v);
+
+	float3 eta = 0.5 * float3(omegaR - omegaL, omegaT - omegaB, omegaU - omegaD);
+	eta = normalize(eta + float3(0.001, 0.001, 0.001));
+
+	float3 force = _TimeStep * _Vorticity * float3(eta.y * omega.z - eta.z * omega.y, eta.z * omega.x - eta.x * omega.z, eta.x * omega.y - eta.y * omega.x);
+	return force;
 }
 
 //
