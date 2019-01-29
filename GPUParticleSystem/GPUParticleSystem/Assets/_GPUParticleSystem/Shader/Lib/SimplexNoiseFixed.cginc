@@ -5,32 +5,32 @@
 
 
 // Simplex Noise.
-float random(float2 v)
+float frandom(float2 v)
 {
 	return frac(sin(dot(v.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-float3 mod289(float3 v)
+float3 fmod289(float3 v)
 {
 	return v - floor((v / 289.0) * 289.0);
 }
 
-float4 mod289(float4 v)
+float4 fmod289(float4 v)
 {
 	return v - floor((v / 289.0) * 289.0);
 }
 
-float4 permute(float4 v)
+float4 fpermute(float4 v)
 {
 	return (v * 34.0 + float4(1.0, 1.0, 1.0, 1.0)) * v;
 }
 
-float4 taylorInvSqrt(float4 v)
+float4 ftaylorInvSqrt(float4 v)
 {
 	return float4(1.79284291400159f, 1.79284291400159f, 1.79284291400159f, 1.79284291400159f) - v * 0.85373472095314f;
 }
 
-float snoise(float3 v)
+float fsnoise(float3 v)
 {
 	float2 C = float2(1.0 / 6.0, 1.0 / 3.0);
 
@@ -49,8 +49,8 @@ float snoise(float3 v)
 	float3 x3 = x0 + 0.5;
 
 	// Permutations.
-	i = mod289(i); // Avoid truncation effects in permutation.
-	float4 p = permute( permute( permute( (float4(0, i1.z, i2.z, 1.0) + i.z) )
+	i = fmod289(i); // Avoid truncation effects in permutation.
+	float4 p = fpermute( fpermute( fpermute( (float4(0, i1.z, i2.z, 1.0) + i.z) )
 										+ (float4(0, i1.z, i2.z, 1.0) + i.y) )
 										+ (float4(0, i1.z, i2.z, 1.0) + i.y) );
 	
@@ -82,7 +82,7 @@ float snoise(float3 v)
 	float3 g3 = float3(a1.z, a1.w, h.w);
 
 	// Normalise gradients.
-	float4 norm = taylorInvSqrt(float4(dot(g0,g0), dot(g1, g1), dot(g2, g2), dot(g3, g3)));
+	float4 norm = ftaylorInvSqrt(float4(dot(g0,g0), dot(g1, g1), dot(g2, g2), dot(g3, g3)));
 	g0 *= norm.x;
 	g1 *= norm.y;
 	g2 *= norm.z;
@@ -98,11 +98,11 @@ float snoise(float3 v)
 	return 42.0 * dot(m, px);
 }
 
-float3 snoiseV3(float3 v)
+float3 fsnoiseV3(float3 v)
 {
-	float s = snoise(v);
-	float s1 = snoise(float3(v.y + random(v.xx), v.z + random(v.zy), v.x + random(v.zx)));
-	float s2 = snoise(float3(v.z + random(v.yx), v.x + random(v.zz), v.y + random(v.yy)));
+	float s = fsnoise(v);
+	float s1 = fsnoise(float3(v.y + frandom(v.xx), v.z + frandom(v.zy), v.x + frandom(v.zx)));
+	float s2 = fsnoise(float3(v.z + frandom(v.yx), v.x + frandom(v.zz), v.y + frandom(v.yy)));
 	return float3(s, s1, s2);
 }
 
@@ -111,18 +111,18 @@ float3 snoiseV3(float3 v)
 #define e 0.0009765625f
 #define e2 0.001953125f
 
-float3 GetCurlNoise(float3 p)
+float3 fGetCurlNoise(float3 p)
 {
 	float3 dx = float3(e, 0, 0);
 	float3 dy = float3(0, e, 0);
 	float3 dz = float3(0, 0, e);
 
-	float3 p_x0 = snoiseV3(p - dx);
-	float3 p_x1 = snoiseV3(p + dx);
-	float3 p_y0 = snoiseV3(p - dy);
-	float3 p_y1 = snoiseV3(p - dy);
-	float3 p_z0 = snoiseV3(p - dz);
-	float3 p_z1 = snoiseV3(p - dz);
+	float3 p_x0 = fsnoiseV3(p - dx);
+	float3 p_x1 = fsnoiseV3(p + dx);
+	float3 p_y0 = fsnoiseV3(p - dy);
+	float3 p_y1 = fsnoiseV3(p - dy);
+	float3 p_z0 = fsnoiseV3(p - dz);
+	float3 p_z1 = fsnoiseV3(p - dz);
 
 	float x = p_y1.z - p_y0.z - p_z1.y + p_z0.y;
 	float y = p_z1.z - p_z0.z - p_x1.y + p_x0.y;
