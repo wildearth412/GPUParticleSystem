@@ -328,7 +328,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	float age = _ParticleBuffer[idx].age;
 
 	// Calculate the acceleration.
-	float3 acceleration = _Gravity.xyz;
+	float3 acceleration = _Gravity.xyz + confinement(velocity, 0.0009765625);
 	// Calculate the speed resulting from gravity.
 	velocity += acceleration * _TimeStep;
 	// Calculate the speed resulting from drag.

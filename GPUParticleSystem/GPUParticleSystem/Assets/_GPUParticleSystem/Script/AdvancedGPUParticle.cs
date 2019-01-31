@@ -60,7 +60,8 @@ public class AdvancedGPUParticle : MonoBehaviour
     public Shader particleShader;
 
     public Vector3 gravity = new Vector3(0, 0.1f, 0);
-    public float drag = 0;      // Air resistance.
+    public float drag = 0;            // Air resistance.
+    public float vortcity = 1.0f;     // Fluid vortcity.
     public float speed = 1.0f;
     //public Vector3 areaSize = new Vector3(10.0f, 10.0f, 10.0f);
 
@@ -209,6 +210,7 @@ public class AdvancedGPUParticle : MonoBehaviour
         particleComputeShader.SetFloat("_MinLifeSpan", startMinLifespan);
         particleComputeShader.SetVector("_Gravity", gravity);
         particleComputeShader.SetFloat("_Drag",drag);
+        particleComputeShader.SetFloat("_Vorticity", vortcity);
         particleComputeShader.SetFloat("_Speed", speed);
         particleComputeShader.SetVector("_CharPosition", characterPosition);
         particleComputeShader.SetVector("_CharDirection", characterDirection);

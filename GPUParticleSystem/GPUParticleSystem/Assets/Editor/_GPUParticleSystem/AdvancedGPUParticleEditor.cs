@@ -34,6 +34,7 @@ public class AdvancedGPUParticleEditor : Editor
         EditorGUI.indentLevel++;
         targetInstance.gravity = EditorGUILayout.Vector3Field("Gravity", targetInstance.gravity);
         targetInstance.drag = EditorGUILayout.FloatField("Drag", targetInstance.drag);
+        targetInstance.vortcity = EditorGUILayout.FloatField("Vortcity", targetInstance.vortcity);
         targetInstance.speed = EditorGUILayout.FloatField("Simulation Speed", targetInstance.speed);
         targetInstance.character = EditorGUILayout.ObjectField("Whole Object Transform", targetInstance.character, typeof(Transform), true) as Transform;
         EditorGUILayout.Separator();
