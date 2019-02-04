@@ -64,6 +64,7 @@ public class AdvancedGPUParticleEditor : Editor
             EditorGUILayout.Space();
             EditorGUI.indentLevel++;
             targetInstance.emitterMesh = EditorGUILayout.ObjectField("Emitter Mesh", targetInstance.emitterMesh, typeof(Mesh), true) as Mesh;
+            targetInstance.smr = EditorGUILayout.ObjectField("Emitter Skinned Mesh Renderer", targetInstance.smr, typeof(SkinnedMeshRenderer), true) as SkinnedMeshRenderer;
             targetInstance.useVertexAnimation = EditorGUILayout.Toggle("Use Vertex Animation", targetInstance.useVertexAnimation);
             if (targetInstance.useVertexAnimation == true)
             {

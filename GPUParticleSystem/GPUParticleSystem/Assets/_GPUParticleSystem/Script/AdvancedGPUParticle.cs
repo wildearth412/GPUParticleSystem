@@ -83,6 +83,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     public float emitterSize = 1.0f;   
     public Mesh emitterMesh;
     private Mesh emitterMeshPrev;
+    public SkinnedMeshRenderer smr;
 
     //public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
     //public float noiseAmount = 1.0f;
@@ -173,7 +174,7 @@ public class AdvancedGPUParticle : MonoBehaviour
         {
             int count = emitterMesh.vertexCount;
             int count2 = 0;
-            vertexPositionBuffer = VerticesToComputeBuffer(emitterMesh.vertices);
+            vertexPositionBuffer = VerticesToComputeBuffer();
             trianglesBuffer = TrianglesToComputeBuffer(emitterMesh.triangles);
             triangleIndicesBuffer = TriangleIndicesToComputeBuffer(emitterMesh.vertices, emitterMesh.triangles, out count2);
             uvBuffer = UVsToComputeBuffer(emitterMesh.uv);
@@ -217,8 +218,11 @@ public class AdvancedGPUParticle : MonoBehaviour
         //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
     }
 
-    private ComputeBuffer VerticesToComputeBuffer(Vector3[] verts)
+    private ComputeBuffer VerticesToComputeBuffer()
     {
+        Mesh me = new Mesh();
+        smr.BakeMesh(me);
+        Vector3[] verts = me.vertices;
         ComputeBuffer posBuff = new ComputeBuffer(verts.Length, Marshal.SizeOf(typeof(Vector3)));
         posBuff.SetData(verts);
         return posBuff;
@@ -335,7 +339,10 @@ public class AdvancedGPUParticle : MonoBehaviour
 
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
+
+        vertexPositionBuffer = VerticesToComputeBuffer();
         cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
+
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLE_INDICES_BUFFER, triangleIndicesBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, NOISE_BUFFER, noiseBuffer);
