@@ -37,6 +37,7 @@ public class AdvancedGPUParticleEditor : Editor
         targetInstance.vortcity = EditorGUILayout.FloatField("Vortcity", targetInstance.vortcity);
         targetInstance.speed = EditorGUILayout.FloatField("Simulation Speed", targetInstance.speed);
         targetInstance.character = EditorGUILayout.ObjectField("Whole Object Transform", targetInstance.character, typeof(Transform), true) as Transform;
+        targetInstance.characterOffset = EditorGUILayout.Vector3Field("Whole Object Offset", targetInstance.characterOffset);
         EditorGUILayout.Separator();
         EditorGUI.indentLevel--;
 
@@ -63,8 +64,19 @@ public class AdvancedGPUParticleEditor : Editor
         {
             EditorGUILayout.Space();
             EditorGUI.indentLevel++;
-            targetInstance.emitterMesh = EditorGUILayout.ObjectField("Emitter Mesh", targetInstance.emitterMesh, typeof(Mesh), true) as Mesh;
-            targetInstance.smr = EditorGUILayout.ObjectField("Emitter Skinned Mesh Renderer", targetInstance.smr, typeof(SkinnedMeshRenderer), true) as SkinnedMeshRenderer;
+
+            targetInstance.bakeInRealtime = EditorGUILayout.Toggle("Bake Skinned Mesh In Realtime", targetInstance.bakeInRealtime);
+            EditorGUI.indentLevel++;
+            if (targetInstance.bakeInRealtime == false)
+            {
+                targetInstance.emitterMesh = EditorGUILayout.ObjectField("Emitter Mesh", targetInstance.emitterMesh, typeof(Mesh), true) as Mesh;                
+            }
+            else
+            {
+                targetInstance.smr = EditorGUILayout.ObjectField("Emitter Skinned Mesh Renderer", targetInstance.smr, typeof(SkinnedMeshRenderer), true) as SkinnedMeshRenderer;
+            }
+            EditorGUI.indentLevel--;
+        
             targetInstance.useVertexAnimation = EditorGUILayout.Toggle("Use Vertex Animation", targetInstance.useVertexAnimation);
             if (targetInstance.useVertexAnimation == true)
             {

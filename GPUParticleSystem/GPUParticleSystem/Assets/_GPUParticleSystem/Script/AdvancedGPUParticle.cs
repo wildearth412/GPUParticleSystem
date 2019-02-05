@@ -76,6 +76,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     public int animeTexSizeY;
 
     public Transform character;
+    public Vector3 characterOffset = Vector3.zero;
     private Vector3 characterPosition;
     private Vector3 characterDirection;
 
@@ -83,6 +84,8 @@ public class AdvancedGPUParticle : MonoBehaviour
     public float emitterSize = 1.0f;   
     public Mesh emitterMesh;
     private Mesh emitterMeshPrev;
+
+    public bool bakeInRealtime = false;
     public SkinnedMeshRenderer smr;
 
     //public GPUParticleSetting.NoiseType noise = GPUParticleSetting.NoiseType.None;
@@ -108,8 +111,8 @@ public class AdvancedGPUParticle : MonoBehaviour
 
     private void Start()
     {
-        characterPosition = character.position;
-        characterDirection = character.forward;
+        characterPosition = character.position + characterOffset;
+        characterDirection = character.forward + characterOffset;
 
         SetupComputeShader();
 
@@ -160,7 +163,10 @@ public class AdvancedGPUParticle : MonoBehaviour
         // Get the kernel ID.
         INIT_KERNEL_ID = particleComputeShader.FindKernel(INIT_KERNEL_NAME);
         UPDATE_KERNEL_ID = particleComputeShader.FindKernel(UPDATE_KERNEL_NAME);
-        
+
+        // Initialize vertexPositionBuffer.
+        vertexPositionBuffer = new ComputeBuffer(emitterMesh.vertexCount, Marshal.SizeOf(typeof(Vector3)));
+
         // Max 10 noise buffers created.
         noiseBuffer = new ComputeBuffer(10, Marshal.SizeOf(typeof(NoiseData)));
 
@@ -174,7 +180,16 @@ public class AdvancedGPUParticle : MonoBehaviour
         {
             int count = emitterMesh.vertexCount;
             int count2 = 0;
-            vertexPositionBuffer = VerticesToComputeBuffer();
+
+            if(!bakeInRealtime)
+            {
+                VerticesToComputeBuffer(emitterMesh.vertices);
+            }
+            else
+            {
+                VerticesToComputeBuffer();
+            }
+            
             trianglesBuffer = TrianglesToComputeBuffer(emitterMesh.triangles);
             triangleIndicesBuffer = TriangleIndicesToComputeBuffer(emitterMesh.vertices, emitterMesh.triangles, out count2);
             uvBuffer = UVsToComputeBuffer(emitterMesh.uv);
@@ -218,14 +233,21 @@ public class AdvancedGPUParticle : MonoBehaviour
         //cs.SetFloats("_AreaSize", new float[3] { areaSize.x, areaSize.y, areaSize.z });
     }
 
-    private ComputeBuffer VerticesToComputeBuffer()
+    private void VerticesToComputeBuffer()
     {
         Mesh me = new Mesh();
         smr.BakeMesh(me);
         Vector3[] verts = me.vertices;
-        ComputeBuffer posBuff = new ComputeBuffer(verts.Length, Marshal.SizeOf(typeof(Vector3)));
-        posBuff.SetData(verts);
-        return posBuff;
+        vertexPositionBuffer.SetData(verts);
+        verts = null;
+        me = null;
+    }
+
+    private void VerticesToComputeBuffer(Vector3[] verts)
+    {
+        var vData = verts;
+        vertexPositionBuffer.SetData(vData);
+        vData = null;
     }
 
     private ComputeBuffer TrianglesToComputeBuffer(int[] tris)
@@ -310,8 +332,8 @@ public class AdvancedGPUParticle : MonoBehaviour
 
     private void Update()
     {
-        characterPosition = character.position;
-        characterDirection = character.forward;
+        characterPosition = character.position + characterOffset;
+        characterDirection = character.forward + characterOffset;
 
         if (emitterMesh == null || particleMat == null) { return; }
 
@@ -340,7 +362,15 @@ public class AdvancedGPUParticle : MonoBehaviour
         // Set compute buffer for compute shader.
         cs.SetBuffer(UPDATE_KERNEL_ID, PARTICLE_BUFFER, particleBuffer);
 
-        vertexPositionBuffer = VerticesToComputeBuffer();
+        if (!bakeInRealtime)
+        {
+            VerticesToComputeBuffer(emitterMesh.vertices);
+        }
+        else
+        {
+            VerticesToComputeBuffer();
+        }
+
         cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
 
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);

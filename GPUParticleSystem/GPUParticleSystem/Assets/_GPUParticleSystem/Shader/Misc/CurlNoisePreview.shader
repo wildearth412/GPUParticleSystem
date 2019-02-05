@@ -7,7 +7,7 @@
 
 	CGINCLUDE
 	#include "UnityCG.cginc"
-	#include "Assets/_GPUParticleSystem/Shader/Lib/Noise.cginc"
+	#include "Assets/_GPUParticleSystem/Shader/Lib/SimplexNoise.cginc"
 
 	struct appdata
 	{		
