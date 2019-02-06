@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using FluidSim3DProject;
 
 [CustomEditor(typeof(AdvancedGPUParticle))]
 public class AdvancedGPUParticleEditor : Editor
@@ -35,6 +36,15 @@ public class AdvancedGPUParticleEditor : Editor
         targetInstance.gravity = EditorGUILayout.Vector3Field("Gravity", targetInstance.gravity);
         targetInstance.drag = EditorGUILayout.FloatField("Drag", targetInstance.drag);
         targetInstance.vortcity = EditorGUILayout.FloatField("Vortcity", targetInstance.vortcity);
+        targetInstance.useFluidVelocity = EditorGUILayout.Toggle("Use Fluid Velocity", targetInstance.useFluidVelocity);
+        if(targetInstance.useFluidVelocity == true)
+        {
+            EditorGUI.indentLevel++;
+            targetInstance.fluidSim = EditorGUILayout.ObjectField("Fluid Simulation", targetInstance.fluidSim, typeof(SmokeFluidSim), true) as SmokeFluidSim;
+            targetInstance.fluidWeight = EditorGUILayout.FloatField("Fluid Weight", targetInstance.fluidWeight);
+            targetInstance.fluidSize = EditorGUILayout.Vector3Field("Fluuid Size", targetInstance.fluidSize);
+            EditorGUI.indentLevel--;
+        }
         targetInstance.speed = EditorGUILayout.FloatField("Simulation Speed", targetInstance.speed);
         targetInstance.character = EditorGUILayout.ObjectField("Whole Object Transform", targetInstance.character, typeof(Transform), true) as Transform;
         targetInstance.characterOffset = EditorGUILayout.Vector3Field("Whole Object Offset", targetInstance.characterOffset);

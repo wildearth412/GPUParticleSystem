@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using FluidSim3DProject;
 //using Noise;
 
 
@@ -50,6 +51,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     private static string TRIANGLES_BUFFER = "_TrianglesBuffer";
     private static string TRIANGLE_INDICES_BUFFER = "_TriangleIndicesBuffer";
     private static string VERTEX_POSITION_TEX = "_VertexPosTex";
+    private static string FLUID_VELOCITY_BUFFER = "_FluidVelocityBuffer";
     private static string NOISE_BUFFER = "_NoiseBuffer";
 
     // Kernal IDs.
@@ -62,8 +64,13 @@ public class AdvancedGPUParticle : MonoBehaviour
     public Vector3 gravity = new Vector3(0, 0.1f, 0);
     public float drag = 0;            // Air resistance.
     public float vortcity = 1.0f;     // Fluid vortcity.
+    public bool useFluidVelocity = false;   // If apply fluid velocity field.
+    public float fluidWeight = 1.0f;
+    public Vector3 fluidSize = new Vector3(5.0f,10.0f,5.0f);
     public float speed = 1.0f;
     //public Vector3 areaSize = new Vector3(10.0f, 10.0f, 10.0f);
+
+    public SmokeFluidSim fluidSim;
 
     public Texture2D particleTex;
     public float particleSize = 0.03f;
@@ -227,6 +234,9 @@ public class AdvancedGPUParticle : MonoBehaviour
         particleComputeShader.SetVector("_Gravity", gravity);
         particleComputeShader.SetFloat("_Drag",drag);
         particleComputeShader.SetFloat("_Vorticity", vortcity);
+        particleComputeShader.SetBool("_UseFluidVelocity", useFluidVelocity);
+        particleComputeShader.SetFloat("_FluidWeight", fluidWeight);
+        particleComputeShader.SetVector("_FluidSize", fluidSize);
         particleComputeShader.SetFloat("_Speed", speed);
         particleComputeShader.SetVector("_CharPosition", characterPosition);
         particleComputeShader.SetVector("_CharDirection", characterDirection);
@@ -372,6 +382,11 @@ public class AdvancedGPUParticle : MonoBehaviour
         }
 
         cs.SetBuffer(UPDATE_KERNEL_ID, VERTEX_POSITION_BUFFER, vertexPositionBuffer);
+
+        if(useFluidVelocity)
+        {
+            cs.SetBuffer(UPDATE_KERNEL_ID, FLUID_VELOCITY_BUFFER, fluidSim.m_velocity[0]);
+        }
 
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLES_BUFFER, trianglesBuffer);
         cs.SetBuffer(UPDATE_KERNEL_ID, TRIANGLE_INDICES_BUFFER, triangleIndicesBuffer);

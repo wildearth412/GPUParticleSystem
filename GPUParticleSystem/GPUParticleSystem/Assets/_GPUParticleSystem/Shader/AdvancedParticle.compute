@@ -51,7 +51,10 @@ cbuffer CB
 	float _MinLifeSpan;
 	float3 _Gravity;
 	float _Drag;
-	float _Vorticity;           // Fluid looks.
+	float _Vorticity;           // Fluid vorticity looks.
+	bool _UseFluidVelocity;     // If apply fluid velocity field.
+	float _FluidWeight;
+	float3 _FluidSize;
 	float _Speed;
 	float3 _CharPosition;       // The position of emitter mesh as character.
 	float3 _CharDirection;      // The direction of emitter mesh as character.
@@ -60,6 +63,9 @@ cbuffer CB
 
 // Create a readable and writable particles data buffer.
 RWStructuredBuffer<ParticleData> _ParticleBuffer;
+
+// Create a buffer to store fluid velocity field.
+StructuredBuffer<float3> _FluidVelocityBuffer;
 
 // Create a buffer to store noise information.
 StructuredBuffer<NoiseData> _NoiseBuffer;
@@ -238,6 +244,18 @@ float3 confinement(float3 v, float d)
 	return force;
 }
 
+float3 getFluidVelocity(float3 pos)
+{
+	float sx = _FluidSize.x / 2.0;
+	float sy = _FluidSize.y / 2.0;
+	float sz = _FluidSize.z / 2.0;
+	int idX = floor( clamp((pos.x + sx) / _FluidSize.x, 0, 1.0) * 64 );
+	int idY = floor( clamp((pos.y + sy) / _FluidSize.y, 0, 1.0) * 128 );
+	int idZ = floor( clamp((pos.z + sz) / _FluidSize.z, 0, 1.0) * 64 );
+	int id = idX + idY * 64 + idZ * 64 * 128;
+	return _FluidVelocityBuffer[id];
+}
+
 //
 // ----------- Kernel Functions. -----------
 //
@@ -328,11 +346,18 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	float age = _ParticleBuffer[idx].age;
 
 	// Calculate the acceleration.
-	float3 acceleration = _Gravity.xyz + confinement(velocity, 0.0009765625);
+	float3 acceleration = _Gravity.xyz;// + confinement(velocity, 0.0009765625);
 	// Calculate the speed resulting from gravity.
 	velocity += acceleration * _TimeStep;
 	// Calculate the speed resulting from drag.
 	velocity = velocity - velocity * _Drag;
+
+	// Apply fluid velocity field.
+	if (_UseFluidVelocity)
+	{
+		velocity += getFluidVelocity(position) * _FluidWeight;
+	}
+	
 	// Calculate the postion.
 	position += velocity * _TimeStep;
 	// Calculate the age.
@@ -376,7 +401,8 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 				position = getTranslatedPos(position);
 			}
 			
-			velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
+			velocity = _Gravity * 0.01;
+			//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 0.25 - 0.125), 1.0 - rand(float2(idxt + _Time, idxt * 0.3421)) * 0.5, (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 0.25 - 0.125));
 			//velocity = float3((rand(float2(idxt * 1.2432, idxt + frac(_Time))) * 2.0 - 1.0), (rand(float2(idxt + _Time, idxt * 0.3421)) * 2.0 - 1.0), (rand(float2(idxt + 4.42312, idxt * 2.2314 * frac(_Time))) * 2.0 - 1.0));
 			//velocity = float3(0,1.0,0);
 		}

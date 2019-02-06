@@ -43,7 +43,8 @@ namespace FluidSim3DProject
 		public ComputeShader m_computeConfinement, m_computeObstacles, m_applyBuoyancy;
 		
 		Vector4 m_size;
-		ComputeBuffer[] m_density, m_velocity, m_pressure, m_temperature, m_phi;
+        public ComputeBuffer[] m_density, m_velocity;
+        ComputeBuffer[]  m_pressure, m_temperature, m_phi;
 		ComputeBuffer m_temp3f, m_obstacles;
 
 		void Start () 

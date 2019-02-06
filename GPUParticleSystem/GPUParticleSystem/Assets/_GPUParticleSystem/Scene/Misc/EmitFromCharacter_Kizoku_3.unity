@@ -196,6 +196,10 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!4 &1106134286 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 400156, guid: f72fc592263a035488acda34f486b15b, type: 3}
+  m_PrefabInternal: {fileID: 2141007808}
 --- !u!137 &1501912833 stripped
 SkinnedMeshRenderer:
   m_PrefabParentObject: {fileID: 13700000, guid: f72fc592263a035488acda34f486b15b,
@@ -285,6 +289,112 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1893332060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1893332064}
+  - component: {fileID: 1893332063}
+  - component: {fileID: 1893332062}
+  - component: {fileID: 1893332061}
+  m_Layer: 0
+  m_Name: FluidSimulation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1893332061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1893332060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a924471615937564f81ebb1540cd8b36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_advectionType: 1
+  m_width: 64
+  m_height: 128
+  m_depth: 64
+  m_iterations: 10
+  m_vorticityStrength: 1
+  m_densityAmount: 1
+  m_densityDissipation: 0.999
+  m_densityBuoyancy: 1
+  m_densityWeight: 0.0125
+  m_temperatureAmount: 10
+  m_temperatureDissipation: 0.995
+  m_velocityDissipation: 0.995
+  m_inputRadius: 0.04
+  m_inputPos: {x: 0.5, y: 0.1, z: 0.5, w: 0}
+  m_applyImpulse: {fileID: 7200000, guid: a080c25e6daeb0d4e88fced65f9959ce, type: 3}
+  m_applyAdvect: {fileID: 7200000, guid: 411cedf0db0a1904693c77b97afbf915, type: 3}
+  m_computeVorticity: {fileID: 7200000, guid: 62b5b102c778bbd4682f63bf0a9bd2fe, type: 3}
+  m_computeDivergence: {fileID: 7200000, guid: e25212f321912c44ab6d9430762d37b6, type: 3}
+  m_computeJacobi: {fileID: 7200000, guid: cebd12b982d79674aab2ed65879e49d0, type: 3}
+  m_computeProjection: {fileID: 7200000, guid: aa1de4528a2c0d24983dce181ecd63af, type: 3}
+  m_computeConfinement: {fileID: 7200000, guid: 4b0055f0edf774c4ea97ac8cd62e6158,
+    type: 3}
+  m_computeObstacles: {fileID: 7200000, guid: 6a49b38e37bae7a4ab2903fbdde8e4ac, type: 3}
+  m_applyBuoyancy: {fileID: 7200000, guid: 0d7710a16db583e418df13bddb0be43d, type: 3}
+--- !u!23 &1893332062
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1893332060}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_Materials:
+  - {fileID: 2100000, guid: dfd547b8d6e669e43901fd5e9e8632f1, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &1893332063
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1893332060}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1893332064
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1893332060}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 4, z: -6}
+  m_LocalScale: {x: 4, y: 8, z: 4}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1954813114
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,27 +426,27 @@ MonoBehaviour:
     type: 3}
   particleShader: {fileID: 4800000, guid: df05bcaa7419b8e469fbad359a193ca5, type: 3}
   gravity: {x: 0, y: 0.8, z: -1}
-  drag: -0.8
+  drag: 0
   vortcity: 7.2
+  useFluidVelocity: 1
   speed: 0.1
+  fluidSim: {fileID: 1893332061}
   particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}
   particleSize: 0.002
   startMaxLifespan: 9
   startMinLifespan: 7
-  useVertexAnimation: 1
-  vertexPosTex: {fileID: 2800000, guid: 56b270b7d297106489aa1a67759464c5, type: 2}
-  animeLength: 0.8
-  animeTexSizeY: 16
-  character: {fileID: 0}
+  useVertexAnimation: 0
+  vertexPosTex: {fileID: 2800000, guid: 7cb9173062d7f4f4ba8bee21cb7cb22f, type: 2}
+  animeLength: 3.06
+  animeTexSizeY: 64
+  character: {fileID: 1106134286}
+  characterOffset: {x: 0, y: -0.1, z: 0}
   emitter: 2
-  emitterSize: 0.5
+  emitterSize: 1
   emitterMesh: {fileID: 4300004, guid: f72fc592263a035488acda34f486b15b, type: 3}
+  bakeInRealtime: 1
   smr: {fileID: 1501912833}
-  noises:
-  - noiseType: 2
-    noiseAmount: 0.03
-    noiseScale: 5.33
-    noiseOffset: {x: 0, y: 0.1, z: -0.3}
+  noises: []
   renderCam: {fileID: 1987344441}
 --- !u!4 &1954813118
 Transform:
@@ -438,7 +548,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 111.037, z: 0}
 --- !u!1001 &2141007808
 Prefab:
