@@ -301,7 +301,7 @@ GameObject:
   - component: {fileID: 1893332062}
   - component: {fileID: 1893332061}
   m_Layer: 0
-  m_Name: FluidSimulation
+  m_Name: Fluid Simulation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -327,6 +327,7 @@ MonoBehaviour:
   m_densityAmount: 1
   m_densityDissipation: 0.999
   m_densityBuoyancy: 1
+  m_buoyancyDirection: {x: 0, y: 1, z: -1, w: 0}
   m_densityWeight: 0.0125
   m_temperatureAmount: 10
   m_temperatureDissipation: 0.995
@@ -429,6 +430,8 @@ MonoBehaviour:
   drag: 0
   vortcity: 7.2
   useFluidVelocity: 1
+  fluidWeight: 1
+  fluidSize: {x: 5, y: 10, z: 5}
   speed: 0.1
   fluidSim: {fileID: 1893332061}
   particleTex: {fileID: 2800000, guid: e9d6a18ea48f40645a9fc9031bd11b9b, type: 3}

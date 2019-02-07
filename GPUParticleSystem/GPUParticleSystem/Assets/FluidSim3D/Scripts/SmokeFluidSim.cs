@@ -29,7 +29,8 @@ namespace FluidSim3DProject
 		public float m_densityAmount = 1.0f;
 		public float m_densityDissipation = 0.999f;
 		public float m_densityBuoyancy = 1.0f;
-		public float m_densityWeight = 0.0125f;
+        public Vector4 m_buoyancyDirection = new Vector4(0, 1, 0, 0);
+        public float m_densityWeight = 0.0125f;
 		public float m_temperatureAmount = 10.0f;
 		public float m_temperatureDissipation = 0.995f;
 		public float m_velocityDissipation = 0.995f;
@@ -126,7 +127,7 @@ namespace FluidSim3DProject
 		void ApplyBuoyancy(float dt)
 		{
 			m_applyBuoyancy.SetVector("_Size", m_size);
-			m_applyBuoyancy.SetVector("_Up", new Vector4(0,1,0,0));
+			m_applyBuoyancy.SetVector("_Up", m_buoyancyDirection);
 			m_applyBuoyancy.SetFloat("_Buoyancy", m_densityBuoyancy);
 			m_applyBuoyancy.SetFloat("_AmbientTemperature", m_ambientTemperature);
 			m_applyBuoyancy.SetFloat("_Weight", m_densityWeight);

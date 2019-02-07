@@ -33,18 +33,6 @@ public class AdvancedGPUParticleEditor : Editor
 
         EditorGUILayout.LabelField("< Overall >", EditorStyles.boldLabel);
         EditorGUI.indentLevel++;
-        targetInstance.gravity = EditorGUILayout.Vector3Field("Gravity", targetInstance.gravity);
-        targetInstance.drag = EditorGUILayout.FloatField("Drag", targetInstance.drag);
-        targetInstance.vortcity = EditorGUILayout.FloatField("Vortcity", targetInstance.vortcity);
-        targetInstance.useFluidVelocity = EditorGUILayout.Toggle("Use Fluid Velocity", targetInstance.useFluidVelocity);
-        if(targetInstance.useFluidVelocity == true)
-        {
-            EditorGUI.indentLevel++;
-            targetInstance.fluidSim = EditorGUILayout.ObjectField("Fluid Simulation", targetInstance.fluidSim, typeof(SmokeFluidSim), true) as SmokeFluidSim;
-            targetInstance.fluidWeight = EditorGUILayout.FloatField("Fluid Weight", targetInstance.fluidWeight);
-            targetInstance.fluidSize = EditorGUILayout.Vector3Field("Fluuid Size", targetInstance.fluidSize);
-            EditorGUI.indentLevel--;
-        }
         targetInstance.speed = EditorGUILayout.FloatField("Simulation Speed", targetInstance.speed);
         targetInstance.character = EditorGUILayout.ObjectField("Whole Object Transform", targetInstance.character, typeof(Transform), true) as Transform;
         targetInstance.characterOffset = EditorGUILayout.Vector3Field("Whole Object Offset", targetInstance.characterOffset);
@@ -88,11 +76,43 @@ public class AdvancedGPUParticleEditor : Editor
             EditorGUI.indentLevel--;
         
             targetInstance.useVertexAnimation = EditorGUILayout.Toggle("Use Vertex Animation", targetInstance.useVertexAnimation);
+            EditorGUI.indentLevel++;
             if (targetInstance.useVertexAnimation == true)
             {
                 targetInstance.vertexPosTex = EditorGUILayout.ObjectField("Vertex Position Texture", targetInstance.vertexPosTex, typeof(Texture2D), true) as Texture2D;
                 targetInstance.animeLength = EditorGUILayout.FloatField("Animation Length", targetInstance.animeLength);
                 targetInstance.animeTexSizeY = EditorGUILayout.IntField("Animation Texture Height", targetInstance.animeTexSizeY);
+            }
+            EditorGUI.indentLevel--;
+            EditorGUI.indentLevel--;
+        }
+        EditorGUILayout.Separator();
+        EditorGUI.indentLevel--;
+
+        EditorGUILayout.LabelField("< Force >", EditorStyles.boldLabel);
+        EditorGUI.indentLevel++;
+        targetInstance.gravity = EditorGUILayout.Vector3Field("Gravity", targetInstance.gravity);
+        targetInstance.drag = EditorGUILayout.FloatField("Drag", targetInstance.drag);
+        targetInstance.vortcity = EditorGUILayout.FloatField("Vortcity", targetInstance.vortcity);
+        EditorGUILayout.Separator();
+        EditorGUI.indentLevel--;
+
+        EditorGUILayout.LabelField("< Fluid >", EditorStyles.boldLabel);
+        EditorGUI.indentLevel++;
+        targetInstance.useFluidVelocity = EditorGUILayout.Toggle("Use Fluid Velocity Field", targetInstance.useFluidVelocity);
+        if (targetInstance.useFluidVelocity == true)
+        {
+            EditorGUI.indentLevel++;
+            targetInstance.fluidSim = EditorGUILayout.ObjectField("Fluid Simulation", targetInstance.fluidSim, typeof(SmokeFluidSim), true) as SmokeFluidSim;
+            EditorGUILayout.Space();
+            
+            if(targetInstance.fluidSim != null)
+            {
+                targetInstance.fluidWeight = EditorGUILayout.FloatField("Velocity Weight", targetInstance.fluidWeight);
+                targetInstance.fluidSize = EditorGUILayout.Vector3Field("Field Size", targetInstance.fluidSize);
+                targetInstance.fluidSim.m_densityWeight = EditorGUILayout.FloatField("Density Weight", targetInstance.fluidSim.m_densityWeight);
+                targetInstance.fluidSim.m_densityBuoyancy = EditorGUILayout.FloatField("Buoyancy Strength", targetInstance.fluidSim.m_densityBuoyancy);
+                targetInstance.fluidSim.m_buoyancyDirection = EditorGUILayout.Vector4Field("Buoyancy Direction", targetInstance.fluidSim.m_buoyancyDirection);           
             }
             EditorGUI.indentLevel--;
         }
