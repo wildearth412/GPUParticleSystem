@@ -114,7 +114,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     private ComputeBuffer noiseBuffer;
     private Material particleMat;
 
-    private Vector3[] debugPos = new Vector3[3000];
+    //private Vector3[] debugPos = new Vector3[3000];
 
     private void Start()
     {
@@ -312,7 +312,7 @@ public class AdvancedGPUParticle : MonoBehaviour
         tridBuff.SetData(tridsa);
 
         // For sampling debug.
-        debugPos = SamplingDebug(verts,tris, tridsa);
+        //debugPos = SamplingDebug(verts,tris, tridsa);
 
         return tridBuff;
     }
@@ -468,13 +468,13 @@ public class AdvancedGPUParticle : MonoBehaviour
         return pos;
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Vector3 size = Vector3.one * 0.009f;
-        for (int i = 0; i < debugPos.Length; i++)
-        {
-            Gizmos.DrawCube(debugPos[i],size);
-        }
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.yellow;
+    //    Vector3 size = Vector3.one * 0.009f;
+    //    for (int i = 0; i < debugPos.Length; i++)
+    //    {
+    //        Gizmos.DrawCube(debugPos[i],size);
+    //    }
+    //}
 }
