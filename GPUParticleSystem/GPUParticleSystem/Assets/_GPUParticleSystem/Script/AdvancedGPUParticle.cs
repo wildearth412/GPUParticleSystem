@@ -61,21 +61,21 @@ public class AdvancedGPUParticle : MonoBehaviour
     public ComputeShader particleComputeShader;
     public Shader particleShader;
 
-    public Vector3 gravity = new Vector3(0, 0.1f, 0);
+    public Vector3 gravity = new Vector3(0, 0.8f, -1.0f);
     public float drag = 0;            // Air resistance.
     public float vortcity = 1.0f;     // Fluid vortcity.
     public bool useFluidVelocity = false;   // If apply fluid velocity field.
-    public float fluidWeight = 1.0f;
-    public Vector3 fluidSize = new Vector3(5.0f,10.0f,5.0f);
-    public float speed = 1.0f;
+    public float fluidWeight = 0.3f;
+    public Vector3 fluidSize = new Vector3(3.0f,6.0f,3.0f);
+    public float speed = 0.1f;
     //public Vector3 areaSize = new Vector3(10.0f, 10.0f, 10.0f);
 
     public SmokeFluidSim fluidSim;
 
     public Texture2D particleTex;
-    public float particleSize = 0.03f;
-    public float startMaxLifespan = 5.0f;
-    public float startMinLifespan = 3.0f;
+    public float particleSize = 0.002f;
+    public float startMaxLifespan = 3.0f;
+    public float startMinLifespan = 0.5f;
 
     public bool useVertexAnimation = true;
     public Texture2D vertexPosTex;
@@ -83,11 +83,11 @@ public class AdvancedGPUParticle : MonoBehaviour
     public int animeTexSizeY;
 
     public Transform character;
-    public Vector3 characterOffset = Vector3.zero;
+    public Vector3 characterOffset = new Vector3(0,-0.1f,-0.05f);
     private Vector3 characterPosition;
     private Vector3 characterDirection;
 
-    public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Plane;
+    public GPUParticleSetting.EmitterType emitter = GPUParticleSetting.EmitterType.Mesh;
     public float emitterSize = 1.0f;   
     public Mesh emitterMesh;
     private Mesh emitterMeshPrev;
