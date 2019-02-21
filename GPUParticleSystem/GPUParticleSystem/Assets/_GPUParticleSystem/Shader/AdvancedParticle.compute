@@ -54,6 +54,8 @@ cbuffer CB
 	float _Vorticity;           // Fluid vorticity looks.
 	bool _UseFluidVelocity;     // If apply fluid velocity field.
 	float _FluidWeight;
+	float3 _FluidOffset;
+	float3 _FluidDirection;
 	float3 _FluidSize;
 	float _Speed;
 	float3 _CharPosition;       // The position of emitter mesh as character.
@@ -139,6 +141,16 @@ float3 rotateAroundZInRadian(float3 v, float rad)
 	return float3(mul(m, v.xy), v.z).zxy;
 }
 
+float3 rotateFluidVelocity(float3 v, float2 dir)
+{
+	float rad = acos(dot(float2(0, 1.0), dir));
+	//rad = dir.x > 0 ? -rad : rad;
+	float s = dir.x > 0 ? 1.0 : -1.0;
+	rad *= s;
+	float3 ret = rotateAroundYInRadian(v, rad);
+	return ret;
+}
+
 float3 getTranslatedPos(float3 v)
 {
 	float2 dir = normalize(_CharDirection.xz);
@@ -146,6 +158,18 @@ float3 getTranslatedPos(float3 v)
 	rad = _CharDirection.x > 0 ? -rad : rad;
 	float3 ret = rotateAroundYInRadian(v, rad);
 	ret += _CharPosition;
+	return ret;
+}
+
+float3 getInverseTranslatedPos(float3 v, float2 dir)
+{
+	float3 ret = v - _CharPosition + _FluidOffset;
+
+	float rad = acos(dot(float2(0, 1.0), dir));
+	//rad = dir.x > 0 ? rad : -rad;
+	float s = dir.x > 0 ? 1.0 : -1.0;
+	rad *= s;
+	ret = rotateAroundYInRadian(ret, rad);
 	return ret;
 }
 
@@ -352,10 +376,24 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	// Calculate the speed resulting from drag.
 	velocity = velocity - velocity * _Drag;
 
+	float2 nmrDir = _CharDirection.xz + _FluidDirection.xz;
+	if (length(nmrDir) > 0.001)
+	{
+		nmrDir = normalize(nmrDir);
+	}
+	else
+	{
+		nmrDir = float2(0,1.0);
+	}	
+
 	// Apply fluid velocity field.
 	if (_UseFluidVelocity)
 	{
-		velocity += getFluidVelocity(position) * _FluidWeight;
+		float3 invPos = getInverseTranslatedPos(position, nmrDir);
+		float3 fluidV = getFluidVelocity(invPos).xyz;
+		//velocity += fluidV * _FluidWeight;
+		velocity += rotateFluidVelocity(fluidV, nmrDir) * _FluidWeight;
+		//velocity += getFluidVelocity(position) * _FluidWeight;
 	}
 	
 	// Calculate the postion.

@@ -109,6 +109,8 @@ public class AdvancedGPUParticleEditor : Editor
             if(targetInstance.fluidSim != null)
             {
                 targetInstance.fluidWeight = EditorGUILayout.FloatField("Velocity Weight", targetInstance.fluidWeight);
+                targetInstance.fluidOffset = EditorGUILayout.Vector3Field("Field Offset", targetInstance.fluidOffset);
+                targetInstance.fluidDirection = EditorGUILayout.Vector3Field("Field Direction", targetInstance.fluidDirection);
                 targetInstance.fluidSize = EditorGUILayout.Vector3Field("Field Size", targetInstance.fluidSize);
                 targetInstance.fluidSim.m_inputRadius = EditorGUILayout.FloatField("Impulse Radius", targetInstance.fluidSim.m_inputRadius);
                 targetInstance.fluidSim.m_inputPos = EditorGUILayout.Vector4Field("Impulse Offset", targetInstance.fluidSim.m_inputPos);

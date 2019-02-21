@@ -66,6 +66,8 @@ public class AdvancedGPUParticle : MonoBehaviour
     public float vortcity = 1.0f;     // Fluid vortcity.
     public bool useFluidVelocity = false;   // If apply fluid velocity field.
     public float fluidWeight = 0.3f;
+    public Vector3 fluidOffset = new Vector3(0.0f, 0.0f, 0.0f);
+    public Vector3 fluidDirection = new Vector3(0.0f, 0.0f, 1.0f);
     public Vector3 fluidSize = new Vector3(3.0f,6.0f,3.0f);
     public float speed = 0.1f;
     //public Vector3 areaSize = new Vector3(10.0f, 10.0f, 10.0f);
@@ -119,6 +121,7 @@ public class AdvancedGPUParticle : MonoBehaviour
     private void Start()
     {
         characterPosition = character.position + characterOffset;
+        //characterPosition = characterOffset;
         characterDirection = character.forward + characterOffset;
 
         SetupComputeShader();
@@ -236,6 +239,8 @@ public class AdvancedGPUParticle : MonoBehaviour
         particleComputeShader.SetFloat("_Vorticity", vortcity);
         particleComputeShader.SetBool("_UseFluidVelocity", useFluidVelocity);
         particleComputeShader.SetFloat("_FluidWeight", fluidWeight);
+        particleComputeShader.SetVector("_FluidOffset", fluidOffset);
+        particleComputeShader.SetVector("_FluidDirection", fluidDirection);
         particleComputeShader.SetVector("_FluidSize", fluidSize);
         particleComputeShader.SetFloat("_Speed", speed);
         particleComputeShader.SetVector("_CharPosition", characterPosition);
