@@ -33,6 +33,10 @@ public class AdvancedGPUParticleEditor : Editor
 
         EditorGUILayout.LabelField("< Overall >", EditorStyles.boldLabel);
         EditorGUI.indentLevel++;
+        targetInstance.totalNum = (GPUParticleSetting.TotalParticlesNum)EditorGUILayout.EnumPopup("Total Particles Num", targetInstance.totalNum);
+        string num = ((int)targetInstance.totalNum).ToString();
+        EditorGUILayout.LabelField(num);
+        EditorGUILayout.Space();
         targetInstance.speed = EditorGUILayout.FloatField("Simulation Speed", targetInstance.speed);
         targetInstance.character = EditorGUILayout.ObjectField("Whole Object Transform", targetInstance.character, typeof(Transform), true) as Transform;
         targetInstance.characterOffset = EditorGUILayout.Vector3Field("Whole Object Offset", targetInstance.characterOffset);

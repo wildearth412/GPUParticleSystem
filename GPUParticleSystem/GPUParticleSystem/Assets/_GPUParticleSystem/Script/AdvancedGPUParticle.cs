@@ -33,8 +33,9 @@ public class NoiseDataClass
 
 public class AdvancedGPUParticle : MonoBehaviour
 {
-    // Power 18 of 2.                    18       17         16        15
-    private const int NUM_PARTICLES = 262144; //131072; //65536; //32768;
+    // Power of 2.       14:16384. 15:32768. 16:65536. 17:131072. 18:262144.
+    public GPUParticleSetting.TotalParticlesNum totalNum = GPUParticleSetting.TotalParticlesNum.Pow14Of2;
+    private int NUM_PARTICLES = 16384;
 
     // Num of threads in thread group.
     private const int NUM_THREAD_X = 8;
@@ -120,6 +121,9 @@ public class AdvancedGPUParticle : MonoBehaviour
 
     private void Start()
     {
+        // Set total particles number.
+        NUM_PARTICLES = (int)totalNum;
+
         characterPosition = character.position + characterOffset;
         //characterPosition = characterOffset;
         characterDirection = character.forward + characterOffset;
