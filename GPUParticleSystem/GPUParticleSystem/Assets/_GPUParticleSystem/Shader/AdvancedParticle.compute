@@ -371,7 +371,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	float age = _ParticleBuffer[idx].age;
 
 	// Calculate the acceleration.
-	float3 acceleration = _Gravity.xyz;// + confinement(velocity, 0.0009765625);
+	float3 acceleration = _Gravity.xyz;// +confinement(velocity, 0.0009765625);
 	// Calculate the speed resulting from gravity.
 	velocity += acceleration * _TimeStep;
 	// Calculate the speed resulting from drag.
@@ -398,7 +398,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	}
 	
 	// Calculate the postion.
-	position += velocity * _TimeStep;
+	position += velocity * _TimeStep * _Speed;
 	// Calculate the age.
 	age = (lifespan * age - _TimeStep) / lifespan;
 
@@ -459,7 +459,7 @@ void CSUpdate(uint3 Gid  : SV_GroupID,
 	//velocity = n;
 
 	// Write speed, position and lifespan into buffer.
-	_ParticleBuffer[idx].velocity = velocity * _Speed;
+	_ParticleBuffer[idx].velocity = velocity;
 	_ParticleBuffer[idx].position = position;
 
 	if (age <= 0)

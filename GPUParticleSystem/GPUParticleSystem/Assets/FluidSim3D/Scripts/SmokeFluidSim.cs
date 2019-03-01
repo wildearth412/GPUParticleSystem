@@ -19,7 +19,9 @@ namespace FluidSim3DProject
 		
 		//You can change this or even use Time.DeltaTime but large time steps can cause numerical errors
 		const float TIME_STEP = 0.1f;
-		
+
+        public float interval = -1.0f;
+
 		public ADVECTION m_advectionType = ADVECTION.NORMAL;
 		public int m_width = 128;
 		public int m_height = 128;
@@ -300,6 +302,9 @@ namespace FluidSim3DProject
 		
 		void Update () 
 		{
+            interval -= Time.deltaTime;
+            if(interval > 0) { return; }
+            else { interval = 0.5f; }
 
 			float dt = TIME_STEP;
 			
